@@ -1,0 +1,27 @@
+{
+    "name": "siamaksamie/kanban",
+    "description": "A Kanban that integrates with Laravel projects",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Siamak Samie",
+            "email": "siamak.samie@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "siamaksamie\\kanban\\": "src/"
+        }
+    },
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "KanbanServiceProvider"
+            ]
+        }
+    }
+
+}
