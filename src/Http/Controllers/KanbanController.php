@@ -1,6 +1,6 @@
 <?php
 
-namespace SiamakSamie\Kanban\Http\Controllers;
+namespace siamaksamie\kanban\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 
