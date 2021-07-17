@@ -1,9 +1,7 @@
 <template>
     <div class="flex" id="app">
 
-        <div class="text-indigo-500">This is a vue + tailwind + fontawesome test
-            <i class="fa fa-user"></i>
-        </div>
+        <router-view></router-view>
 
     </div>
 </template>
