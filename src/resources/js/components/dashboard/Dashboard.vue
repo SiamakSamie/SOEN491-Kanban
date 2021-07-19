@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="dashboardData !== null">
         <div class="mx-10 my-3 space-y-5 shadow-xl p-5 bg-white">
             <actions :boardsLength="dashboardData.boards.length"></actions>
             <add-or-edit-board-modal></add-or-edit-board-modal>

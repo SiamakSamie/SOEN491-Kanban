@@ -8019,20 +8019,22 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _c(
-      "div",
-      { staticClass: "mx-10 my-3 space-y-5 shadow-xl p-5 bg-white" },
-      [
-        _c("actions", {
-          attrs: { boardsLength: _vm.dashboardData.boards.length }
-        }),
-        _vm._v(" "),
-        _c("add-or-edit-board-modal")
-      ],
-      1
-    )
-  ])
+  return _vm.dashboardData !== null
+    ? _c("div", [
+        _c(
+          "div",
+          { staticClass: "mx-10 my-3 space-y-5 shadow-xl p-5 bg-white" },
+          [
+            _c("actions", {
+              attrs: { boardsLength: _vm.dashboardData.boards.length }
+            }),
+            _vm._v(" "),
+            _c("add-or-edit-board-modal")
+          ],
+          1
+        )
+      ])
+    : _vm._e()
 }
 var staticRenderFns = []
 render._withStripped = true
