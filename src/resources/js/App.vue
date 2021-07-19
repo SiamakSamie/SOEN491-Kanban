@@ -3,7 +3,7 @@
         <div class="flex min-h-screen">
             <side-bar></side-bar>
         </div>
-        <div>
+        <div class="relative min-w-screen border-r flex-grow overflow-x-auto">
             <router-view></router-view>
         </div>
 

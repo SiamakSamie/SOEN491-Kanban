@@ -6497,6 +6497,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -7994,7 +8000,14 @@ var render = function() {
   return _c("div", { staticClass: "flex", attrs: { id: "app" } }, [
     _c("div", { staticClass: "flex min-h-screen" }, [_c("side-bar")], 1),
     _vm._v(" "),
-    _c("div", [_c("router-view")], 1)
+    _c(
+      "div",
+      {
+        staticClass: "relative min-w-screen border-r flex-grow overflow-x-auto"
+      },
+      [_c("router-view")],
+      1
+    )
   ])
 }
 var staticRenderFns = []
@@ -8021,6 +8034,13 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _vm.dashboardData !== null
     ? _c("div", [
+        _c("div", {
+          staticClass: "bg-gray-100 w-full h-64 absolute top-0 rounded-b-lg",
+          staticStyle: { "z-index": "-1" }
+        }),
+        _vm._v(" "),
+        _vm._m(0),
+        _vm._v(" "),
         _c(
           "div",
           { staticClass: "mx-10 my-3 space-y-5 shadow-xl p-5 bg-white" },
@@ -8036,7 +8056,18 @@ var render = function() {
       ])
     : _vm._e()
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "flex flex-wrap p-4 pl-10" }, [
+      _c("h3", { staticClass: "text-3xl text-gray-800 font-bold py-1 pr-8" }, [
+        _vm._v("Dashboard")
+      ])
+    ])
+  }
+]
 render._withStripped = true
 
 
