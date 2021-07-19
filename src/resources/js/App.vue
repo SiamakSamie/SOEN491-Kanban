@@ -3,7 +3,7 @@
         <div class="flex min-h-screen">
             <side-bar></side-bar>
         </div>
-        <div>
+        <div class="relative min-w-screen border-r flex-grow overflow-x-auto">
             <router-view></router-view>
         </div>
 
@@ -12,12 +12,22 @@
 
 <script>
 import SideBar from "./components/global/SideBar.vue";
+import Vue from "vue";
 
 export default {
     name: "App",
     components: {
         SideBar,
     },
-
+    data() {
+        return {
+            eventHub: new Vue(),
+        };
+    },
+    provide() {
+        return {
+            eventHub: this.eventHub,
+        };
+    },
 };
 </script>

@@ -1,19 +1,72 @@
 <template>
-    <div>
-        This is the dashboard page
+    <div v-if="dashboardData !== null">
+        <div class="bg-gray-100 w-full h-64 absolute top-0 rounded-b-lg" style="z-index: -1"></div>
 
-        <router-link :to="{ path: '/kanban/board', query: { id: 1 } }">
-            <span class="text-gray-700 bg-gray-50 p-2 m-2">Test Board 1</span>
-        </router-link>
+        <div class="flex flex-wrap p-4 pl-10">
+            <h3 class="text-3xl text-gray-800 font-bold py-1 pr-8">Dashboard</h3>
+        </div>
 
-        <router-link :to="{ path: '/kanban/board', query: { id: 2 } }">
-            <span class="text-gray-700 bg-gray-50 p-2 m-2">Test Board 2</span>
-        </router-link>
+        <div class="mx-10 my-3 space-y-5 shadow-xl p-5 bg-white">
+            <actions :boardsLength="dashboardData.boards.length"></actions>
+            <add-or-edit-board-modal></add-or-edit-board-modal>
+        </div>
     </div>
 </template>
 
 <script>
+
+import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
+import Actions from "./dashboardComponents/Actions.vue";
+import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
+
 export default {
+    inject: ["eventHub"],
+    components: {
+        AddOrEditBoardModal,
+        Actions,
+    },
+    mixins: [ajaxCalls],
+
+    mounted() {
+        this.getDashboardData();
+    },
+
+    data() {
+        return {
+            dashboardData: null,
+        };
+    },
+
+    created() {
+        this.eventHub.$on("save-board", (boardData) => {
+            this.saveBoard(boardData);
+        });
+    },
+
+    beforeDestroy(){
+        this.eventHub.$off('save-board');
+    },
+
+    methods: {
+        saveBoard(kanbanData) {
+            this.loadingBoard = true
+            const cloneKanbanData = {...kanbanData};
+            this.asyncCreateBoard(cloneKanbanData).then(res => {
+                this.asyncGetBoards().then((data) => {
+                    this.dashboardData.boards = data.data;
+                    this.loadingBoard = false;
+                }).catch(res => {
+                    console.log(res)
+                });
+            });
+        },
+
+        getDashboardData() {
+            this.asyncGetDashboardData().then((data) => {
+                this.dashboardData = data.data;
+            }).catch(res => {console.log(res)});
+        },
+    }
 };
 </script>
 
