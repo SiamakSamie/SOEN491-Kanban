@@ -7,8 +7,9 @@
         </div>
 
         <div class="mx-10 my-3 space-y-5 shadow-xl p-5 bg-white">
-            <actions :boardsLength="dashboardData.boards.length"></actions>
+            <actions :boardsLength="dashboardData.boards.length" :employeesLength="dashboardData.employees.length"></actions>
             <add-or-edit-board-modal></add-or-edit-board-modal>
+            <add-or-edit-employee-modal></add-or-edit-employee-modal>
         </div>
     </div>
 </template>
@@ -18,11 +19,14 @@
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
 import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
+import AddOrEditEmployeeModal from "./dashboardComponents/AddOrEditEmployeeModal.vue";
+
 
 export default {
     inject: ["eventHub"],
     components: {
         AddOrEditBoardModal,
+        AddOrEditEmployeeModal,
         Actions,
     },
     mixins: [ajaxCalls],
@@ -41,13 +45,29 @@ export default {
         this.eventHub.$on("save-board", (boardData) => {
             this.saveBoard(boardData);
         });
+        this.eventHub.$on("save-employee", (employeeData) => {
+            this.saveEmployee(employeeData);
+        });
     },
 
     beforeDestroy(){
         this.eventHub.$off('save-board');
+        this.eventHub.$off('save-employee');
     },
 
     methods: {
+        saveEmployee(employeeData) {
+            this.loadingEmployee = true;
+            const cloneEmployeeData = {...employeeData};
+            console.log(cloneEmployeeData);
+            this.asyncCreateKanbanEmployee(cloneEmployeeData).then(res => {
+                this.asyncGetKanbanEmployees().then((data) => {
+                    this.dashboardData.employees = data.data;
+                    this.loadingEmployee = false;
+                }).catch(res => {console.log(res)});
+            });
+        },
+
         saveBoard(kanbanData) {
             this.loadingBoard = true
             const cloneKanbanData = {...kanbanData};
