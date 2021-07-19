@@ -23,6 +23,13 @@
             Route::get('/get-boards', 'BoardsController@getBoards');
             Route::post('/create-board', 'BoardsController@createBoard');
 
+            //Employees + Parent Users
+
+            Route::post('/create-kanban-employees', 'EmployeeController@createEmployees');
+            Route::get('/get-kanban-employees', 'EmployeeController@getEmployees');
+
+            Route::get('/get-all-users', 'EmployeeController@getAllUsers');
+            Route::get('/get-some-users/{searchTerm}', 'EmployeeController@getSomeUsers');
 
         });
     });

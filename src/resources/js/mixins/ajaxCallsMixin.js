@@ -22,6 +22,29 @@ export const ajaxCalls = {
             });
         },
 
+        // Employees
+
+        asyncCreateKanbanEmployee(employeeData) {
+            return axios.post('create-kanban-employees', employeeData).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncGetKanbanEmployees() {
+            return axios.get('get-kanban-employees');
+        },
+
+        asyncGetAllUsers() {
+            return axios.get('get-all-users');
+        },
+
+        asyncGetSomeUsers(searchTerm) {
+            if (searchTerm == '') {
+                return axios.get('get-all-users');
+            }
+            return axios.get('get-some-users/' + searchTerm);
+        },
+
 
         // Triggers
 
