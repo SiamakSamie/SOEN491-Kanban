@@ -1,10 +1,10 @@
 <?php
 
-namespace siamaksamie\kanban\Http\Controllers;
+namespace SiamakSamie\Kanban\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use siamaksamie\kanban\Models\Column;
-use siamaksamie\kanban\Models\Row;
+use SiamakSamie\Kanban\Models\Column;
+use SiamakSamie\Kanban\Models\Row;
 
 
 class RowAndColumnsController extends Controller

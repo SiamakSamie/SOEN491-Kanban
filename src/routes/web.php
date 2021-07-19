@@ -10,5 +10,10 @@
             Route::get('/', 'KanbanController@getIndex');
             Route::get('/dashboard', 'KanbanController@getIndex');
             Route::get('/board', 'KanbanController@getIndex');
+
+            //Routes For Async
+
+            Route::get('/get-boards', 'BoardsController@getBoards');
+
         });
     });

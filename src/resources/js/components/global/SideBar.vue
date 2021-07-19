@@ -49,7 +49,11 @@
 
 </template>
 <script>
+
+import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
+
 export default {
+    mixins: [ajaxCalls],
 
     data() {
         return {
@@ -62,12 +66,11 @@ export default {
 
     methods: {
         getBoards() {
-            this.loadingBoards = true;
-
-            setTimeout(() => {
-                this.boards = [{id: 1, name: 'test 1'}, {id: 2, name: 'test 2'}]
-                this.loadingBoards = false;
-            }, 2000);
+            this.loadingBoard = true;
+            this.asyncGetBoards().then((data) => {
+                this.boards = data.data;
+                this.loadingBoard = false;
+            }).catch(res => {console.log(res)});
         },
     },
 };
