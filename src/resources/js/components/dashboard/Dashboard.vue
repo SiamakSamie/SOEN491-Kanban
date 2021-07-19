@@ -2,6 +2,7 @@
     <div>
         <div class="mx-10 my-3 space-y-5 shadow-xl p-5 bg-white">
             <actions :boardsLength="dashboardData.boards.length"></actions>
+            <add-or-edit-board-modal></add-or-edit-board-modal>
         </div>
     </div>
 </template>
@@ -10,11 +11,12 @@
 
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
-
+import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
 
 export default {
     inject: ["eventHub"],
     components: {
+        AddOrEditBoardModal,
         Actions,
     },
     mixins: [ajaxCalls],
@@ -30,9 +32,8 @@ export default {
     },
 
     created() {
-
-        this.eventHub.$on("save-board", (kanbanData) => {
-            this.saveBoard(kanbanData);
+        this.eventHub.$on("save-board", (boardData) => {
+            this.saveBoard(boardData);
         });
     },
 

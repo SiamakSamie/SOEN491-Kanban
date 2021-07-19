@@ -21,6 +21,8 @@
             // Board
 
             Route::get('/get-boards', 'BoardsController@getBoards');
+            Route::post('/create-board', 'BoardsController@createBoard');
+
 
         });
     });
