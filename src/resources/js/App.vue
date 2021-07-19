@@ -12,12 +12,22 @@
 
 <script>
 import SideBar from "./components/global/SideBar.vue";
+import Vue from "vue";
 
 export default {
     name: "App",
     components: {
         SideBar,
     },
-
+    data() {
+        return {
+            eventHub: new Vue(),
+        };
+    },
+    provide() {
+        return {
+            eventHub: this.eventHub,
+        };
+    },
 };
 </script>
