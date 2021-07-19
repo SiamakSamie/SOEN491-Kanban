@@ -1,9 +1,9 @@
 <?php
 
-namespace siamaksamie\kanban\Http\Controllers;
+namespace SiamakSamie\Kanban\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use siamaksamie\kanban\Models\Member;
+use SiamakSamie\Kanban\Models\Member;
 
 
 class MemberController extends Controller

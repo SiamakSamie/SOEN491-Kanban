@@ -1,9 +1,9 @@
 <?php
 
-namespace siamaksamie\kanban\Http\Controllers;
+namespace SiamakSamie\Kanban\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use siamaksamie\kanban\Models\Comment;
+use SiamakSamie\Kanban\Models\Comment;
 
 class CommentController extends Controller
 {
