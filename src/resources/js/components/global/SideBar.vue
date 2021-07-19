@@ -66,10 +66,10 @@ export default {
 
     methods: {
         getBoards() {
-            this.loadingBoard = true;
+            this.loadingBoards = true;
             this.asyncGetBoards().then((data) => {
                 this.boards = data.data;
-                this.loadingBoard = false;
+                this.loadingBoards = false;
             }).catch(res => {console.log(res)});
         },
     },

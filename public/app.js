@@ -6560,10 +6560,10 @@ __webpack_require__.r(__webpack_exports__);
     getBoards: function getBoards() {
       var _this = this;
 
-      this.loadingBoard = true;
+      this.loadingBoards = true;
       this.asyncGetBoards().then(function (data) {
         _this.boards = data.data;
-        _this.loadingBoard = false;
+        _this.loadingBoards = false;
       })["catch"](function (res) {
         console.log(res);
       });
