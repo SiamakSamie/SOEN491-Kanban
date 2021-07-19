@@ -9,9 +9,10 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
     "autoload": {
         "psr-4": {
+            "siamaksamie\\kanban\\Tests\\": "tests/",
+
             "siamaksamie\\kanban\\": "src/"
         }
     },
@@ -22,6 +23,8 @@
                 "KanbanServiceProvider"
             ]
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.5.x-dev"
     }
-
 }
