@@ -29,6 +29,8 @@
 
             Route::post('/create-kanban-employees', 'EmployeeController@createEmployees');
             Route::get('/get-kanban-employees', 'EmployeeController@getEmployees');
+            Route::post('/delete-kanban-employee/{id}', 'EmployeeController@deleteEmployee');
+
 
             Route::get('/get-all-users', 'EmployeeController@getAllUsers');
             Route::get('/get-some-users/{searchTerm}', 'EmployeeController@getSomeUsers');

@@ -42,6 +42,14 @@ export const ajaxCalls = {
             });
         },
 
+        asyncDeleteKanbanEmployee(employeeId) {
+            return axios.post('delete-kanban-employee/' + employeeId).then(() =>{
+                this.triggerSuccessToast("Employee Removed");
+            }).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
         asyncGetKanbanEmployees() {
             return axios.get('get-kanban-employees');
         },

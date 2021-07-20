@@ -10,6 +10,9 @@
             <actions :boardsLength="dashboardData.boards.length" :employeesLength="dashboardData.employees.length"></actions>
             <board-list :class="{ 'animate-pulse': loadingBoard }"
                         :boards="dashboardData.boards"></board-list>
+            <employee-list :class="{ 'animate-pulse': loadingEmployee }"
+                           :employees="dashboardData.employees"></employee-list>
+
             <add-or-edit-board-modal></add-or-edit-board-modal>
             <add-or-edit-employee-modal></add-or-edit-employee-modal>
         </div>
@@ -21,6 +24,7 @@
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
 import BoardList from "./dashboardComponents/BoardList";
+import EmployeeList from "./dashboardComponents/EmployeeList";
 
 import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
 import AddOrEditEmployeeModal from "./dashboardComponents/AddOrEditEmployeeModal.vue";
@@ -30,7 +34,8 @@ export default {
         AddOrEditBoardModal,
         AddOrEditEmployeeModal,
         Actions,
-        BoardList
+        BoardList,
+        EmployeeList
     },
     mixins: [ajaxCalls],
 
@@ -42,6 +47,7 @@ export default {
         return {
             dashboardData: null,
             loadingBoard: false,
+            loadingEmployee: false,
         };
     },
 
@@ -49,11 +55,14 @@ export default {
         this.eventHub.$on("save-board", (boardData) => {
             this.saveBoard(boardData);
         });
-        this.eventHub.$on("save-employee", (employeeData) => {
-            this.saveEmployee(employeeData);
-        });
         this.eventHub.$on("delete-board", (boardId) => {
             this.deleteBoard(boardId);
+        });
+        this.eventHub.$on("save-kanban-employee", (employeeData) => {
+            this.saveEmployee(employeeData);
+        });
+        this.eventHub.$on("delete-kanban-employee", (employeeId) => {
+            this.deleteEmployee(employeeId);
         });
     },
 
@@ -63,18 +72,6 @@ export default {
     },
 
     methods: {
-        saveEmployee(employeeData) {
-            this.loadingEmployee = true;
-            const cloneEmployeeData = {...employeeData};
-            console.log(cloneEmployeeData);
-            this.asyncCreateKanbanEmployee(cloneEmployeeData).then(res => {
-                this.asyncGetKanbanEmployees().then((data) => {
-                    this.dashboardData.employees = data.data;
-                    this.loadingEmployee = false;
-                }).catch(res => {console.log(res)});
-            });
-        },
-
         saveBoard(kanbanData) {
             this.loadingBoard = true
             const cloneKanbanData = {...kanbanData};
@@ -100,6 +97,27 @@ export default {
             });
         },
 
+        saveEmployee(employeeData) {
+            this.loadingEmployee = true;
+            const cloneEmployeeData = {...employeeData};
+            console.log(cloneEmployeeData);
+            this.asyncCreateKanbanEmployee(cloneEmployeeData).then(res => {
+                this.asyncGetKanbanEmployees().then((data) => {
+                    this.dashboardData.employees = data.data;
+                    this.loadingEmployee = false;
+                }).catch(res => {console.log(res)});
+            });
+        },
+
+        deleteEmployee(employeeId) {
+            this.loadingEmployee = true;
+            this.asyncDeleteKanbanEmployee(employeeId).then(res => {
+                this.asyncGetKanbanEmployees().then((data) => {
+                    this.dashboardData.employees = data.data;
+                    this.loadingEmployee = false;
+                }).catch(res => {console.log(res)});
+            });
+        },
 
         getDashboardData() {
             this.asyncGetDashboardData().then((data) => {

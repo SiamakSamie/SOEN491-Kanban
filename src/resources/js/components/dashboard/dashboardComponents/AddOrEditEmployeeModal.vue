@@ -204,7 +204,7 @@
         methods: {
             saveEmployee(event) {
                 event.target.disabled = true;
-                this.eventHub.$emit("save-employee", this.employeeData);
+                this.eventHub.$emit("save-kanban-employee", this.employeeData);
                 this.modalOpen = false;
             },
             deleteEmployee(event) {
