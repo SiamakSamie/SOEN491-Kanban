@@ -10,6 +10,9 @@
             <actions :boardsLength="dashboardData.boards.length" :employeesLength="dashboardData.employees.length"></actions>
             <board-list :class="{ 'animate-pulse': loadingBoard }"
                         :boards="dashboardData.boards"></board-list>
+            <employee-list :class="{ 'animate-pulse': loadingEmployee }"
+                           :employees="dashboardData.employees"></employee-list>
+
             <add-or-edit-board-modal></add-or-edit-board-modal>
             <add-or-edit-employee-modal></add-or-edit-employee-modal>
         </div>
@@ -21,6 +24,7 @@
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
 import BoardList from "./dashboardComponents/BoardList";
+import EmployeeList from "./dashboardComponents/EmployeeList";
 
 import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
 import AddOrEditEmployeeModal from "./dashboardComponents/AddOrEditEmployeeModal.vue";
@@ -30,7 +34,8 @@ export default {
         AddOrEditBoardModal,
         AddOrEditEmployeeModal,
         Actions,
-        BoardList
+        BoardList,
+        EmployeeList
     },
     mixins: [ajaxCalls],
 
@@ -42,6 +47,7 @@ export default {
         return {
             dashboardData: null,
             loadingBoard: false,
+            loadingEmployee: false,
         };
     },
 
