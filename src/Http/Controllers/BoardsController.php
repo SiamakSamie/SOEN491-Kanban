@@ -10,7 +10,6 @@ use SiamakSamie\Kanban\Models\Board;
 
 class BoardsController extends Controller
 {
-
     public function getBoards()
     {
         return Board::orderBy('name')->with('members')->get();
@@ -54,6 +53,21 @@ class BoardsController extends Controller
             ], 400);
         }
 
+        return response(['success' => 'true'], 200);
+    }
+
+    public function deleteBoard($id)
+    {
+        try {
+            $board = Board::find($id);
+            $board->delete();
+
+        } catch (\Exception $e) {
+            return response([
+                'success' => 'false',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
         return response(['success' => 'true'], 200);
     }
 }

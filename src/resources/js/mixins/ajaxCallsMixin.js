@@ -17,7 +17,17 @@ export const ajaxCalls = {
         },
 
         asyncCreateBoard(kanbanData) {
-            return axios.post('create-board', kanbanData).catch((error) => {
+            return axios.post('create-board', kanbanData).then(() =>{
+                this.triggerSuccessToast("Board Created!");
+            }).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncDeleteBoard(boardId) {
+            return axios.post('delete-board/' + boardId).then(() =>{
+                this.triggerSuccessToast("Board Deleted!");
+            }).catch((error) => {
                 this.triggerErrorToast(error.response.data.message);
             });
         },
@@ -25,7 +35,9 @@ export const ajaxCalls = {
         // Employees
 
         asyncCreateKanbanEmployee(employeeData) {
-            return axios.post('create-kanban-employees', employeeData).catch((error) => {
+            return axios.post('create-kanban-employees', employeeData).then(() =>{
+                this.triggerSuccessToast("Employee Added!");
+            }).catch((error) => {
                 this.triggerErrorToast(error.response.data.message);
             });
         },
@@ -39,7 +51,7 @@ export const ajaxCalls = {
         },
 
         asyncGetSomeUsers(searchTerm) {
-            if (searchTerm == '') {
+            if (searchTerm === '') {
                 return axios.get('get-all-users');
             }
             return axios.get('get-some-users/' + searchTerm);
