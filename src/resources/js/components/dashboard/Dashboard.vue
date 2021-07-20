@@ -52,6 +52,9 @@ export default {
         this.eventHub.$on("save-employee", (employeeData) => {
             this.saveEmployee(employeeData);
         });
+        this.eventHub.$on("delete-board", (boardId) => {
+            this.deleteBoard(boardId);
+        });
     },
 
     beforeDestroy(){
@@ -85,6 +88,18 @@ export default {
                 });
             });
         },
+        deleteBoard(boardId) {
+            this.loadingBoard = true
+            this.asyncDeleteBoard(boardId).then(res => {
+                this.eventHub.$emit("update-side-bar");
+                this.asyncGetBoards().then((data) => {
+                    this.dashboardData.boards = data.data;
+                    this.loadingBoard = false;
+                }).catch(res => {console.log(res)});
+
+            });
+        },
+
 
         getDashboardData() {
             this.asyncGetDashboardData().then((data) => {

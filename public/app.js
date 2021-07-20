@@ -6540,6 +6540,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.eventHub.$on("save-employee", function (employeeData) {
       _this.saveEmployee(employeeData);
     });
+    this.eventHub.$on("delete-board", function (boardId) {
+      _this.deleteBoard(boardId);
+    });
   },
   beforeDestroy: function beforeDestroy() {
     this.eventHub.$off('save-board');
@@ -6581,11 +6584,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       });
     },
-    getDashboardData: function getDashboardData() {
+    deleteBoard: function deleteBoard(boardId) {
       var _this4 = this;
 
+      this.loadingBoard = true;
+      this.asyncDeleteBoard(boardId).then(function (res) {
+        _this4.eventHub.$emit("update-side-bar");
+
+        _this4.asyncGetBoards().then(function (data) {
+          _this4.dashboardData.boards = data.data;
+          _this4.loadingBoard = false;
+        })["catch"](function (res) {
+          console.log(res);
+        });
+      });
+    },
+    getDashboardData: function getDashboardData() {
+      var _this5 = this;
+
       this.asyncGetDashboardData().then(function (data) {
-        _this4.dashboardData = data.data;
+        _this5.dashboardData = data.data;
       })["catch"](function (res) {
         console.log(res);
       });
@@ -44825,16 +44843,29 @@ var ajaxCalls = {
     asyncCreateBoard: function asyncCreateBoard(kanbanData) {
       var _this = this;
 
-      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-board', kanbanData)["catch"](function (error) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-board', kanbanData).then(function () {
+        _this.triggerSuccessToast("Board Created!");
+      })["catch"](function (error) {
         _this.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncDeleteBoard: function asyncDeleteBoard(boardId) {
+      var _this2 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-board/' + boardId).then(function () {
+        _this2.triggerSuccessToast("Board Deleted!");
+      })["catch"](function (error) {
+        _this2.triggerErrorToast(error.response.data.message);
       });
     },
     // Employees
     asyncCreateKanbanEmployee: function asyncCreateKanbanEmployee(employeeData) {
-      var _this2 = this;
+      var _this3 = this;
 
-      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-kanban-employees', employeeData)["catch"](function (error) {
-        _this2.triggerErrorToast(error.response.data.message);
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-kanban-employees', employeeData).then(function () {
+        _this3.triggerSuccessToast("Employee Added!");
+      })["catch"](function (error) {
+        _this3.triggerErrorToast(error.response.data.message);
       });
     },
     asyncGetKanbanEmployees: function asyncGetKanbanEmployees() {
@@ -44844,7 +44875,7 @@ var ajaxCalls = {
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-all-users');
     },
     asyncGetSomeUsers: function asyncGetSomeUsers(searchTerm) {
-      if (searchTerm == '') {
+      if (searchTerm === '') {
         return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-all-users');
       }
 

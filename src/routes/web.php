@@ -22,6 +22,8 @@
 
             Route::get('/get-boards', 'BoardsController@getBoards');
             Route::post('/create-board', 'BoardsController@createBoard');
+            Route::post('/delete-board/{id}', 'BoardsController@deleteBoard');
+
 
             //Employees + Parent Users
 
