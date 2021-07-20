@@ -53,6 +53,7 @@
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 
 export default {
+    inject: ["eventHub"],
     mixins: [ajaxCalls],
 
     data() {
@@ -62,6 +63,12 @@ export default {
         };
     }, mounted() {
         this.getBoards();
+    },
+
+    created() {
+        this.eventHub.$on("update-side-bar", () => {
+            this.getBoards();
+        });
     },
 
     methods: {

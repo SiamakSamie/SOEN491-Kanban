@@ -20,8 +20,6 @@ import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
 import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
 import AddOrEditEmployeeModal from "./dashboardComponents/AddOrEditEmployeeModal.vue";
-
-
 export default {
     inject: ["eventHub"],
     components: {
@@ -72,6 +70,7 @@ export default {
             this.loadingBoard = true
             const cloneKanbanData = {...kanbanData};
             this.asyncCreateBoard(cloneKanbanData).then(res => {
+                this.eventHub.$emit("update-side-bar");
                 this.asyncGetBoards().then((data) => {
                     this.dashboardData.boards = data.data;
                     this.loadingBoard = false;

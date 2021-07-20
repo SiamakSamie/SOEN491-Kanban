@@ -6565,6 +6565,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var cloneKanbanData = _objectSpread({}, kanbanData);
 
       this.asyncCreateBoard(cloneKanbanData).then(function (res) {
+        _this3.eventHub.$emit("update-side-bar");
+
         _this3.asyncGetBoards().then(function (data) {
           _this3.dashboardData.boards = data.data;
           _this3.loadingBoard = false;
@@ -7123,6 +7125,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  inject: ["eventHub"],
   mixins: [_mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_0__["ajaxCalls"]],
   data: function data() {
     return {
@@ -7133,14 +7136,21 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     this.getBoards();
   },
+  created: function created() {
+    var _this = this;
+
+    this.eventHub.$on("update-side-bar", function () {
+      _this.getBoards();
+    });
+  },
   methods: {
     getBoards: function getBoards() {
-      var _this = this;
+      var _this2 = this;
 
       this.loadingBoards = true;
       this.asyncGetBoards().then(function (data) {
-        _this.boards = data.data;
-        _this.loadingBoards = false;
+        _this2.boards = data.data;
+        _this2.loadingBoards = false;
       })["catch"](function (res) {
         console.log(res);
       });
