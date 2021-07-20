@@ -8,6 +8,8 @@
 
         <div class="mx-10 my-3 space-y-5 shadow-xl p-5 bg-white">
             <actions :boardsLength="dashboardData.boards.length" :employeesLength="dashboardData.employees.length"></actions>
+            <board-list :class="{ 'animate-pulse': loadingBoard }"
+                        :boards="dashboardData.boards"></board-list>
             <add-or-edit-board-modal></add-or-edit-board-modal>
             <add-or-edit-employee-modal></add-or-edit-employee-modal>
         </div>
@@ -18,6 +20,8 @@
 
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import Actions from "./dashboardComponents/Actions.vue";
+import BoardList from "./dashboardComponents/BoardList";
+
 import AddOrEditBoardModal from "./dashboardComponents/AddOrEditBoardModal";
 import AddOrEditEmployeeModal from "./dashboardComponents/AddOrEditEmployeeModal.vue";
 export default {
@@ -26,6 +30,7 @@ export default {
         AddOrEditBoardModal,
         AddOrEditEmployeeModal,
         Actions,
+        BoardList
     },
     mixins: [ajaxCalls],
 
@@ -36,6 +41,7 @@ export default {
     data() {
         return {
             dashboardData: null,
+            loadingBoard: false,
         };
     },
 
