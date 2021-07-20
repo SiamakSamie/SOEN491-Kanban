@@ -69,6 +69,7 @@
                                              v-model="employeeData.selectedUsers"
                                              @search="onType">
                                         <template slot="option" slot-scope="option">
+                                            <avatar :name="option.name" :size="4" class="mr-3 m-1 float-left"></avatar>
                                             <p class="inline">{{ option.name }}</p>
                                         </template>
                                         <template #no-options="{ search, searching, loading }">
@@ -141,6 +142,7 @@
 </template>
 <script>
     import vSelect from "vue-select";
+    import Avatar from "../../global/Avatar";
     import {ajaxCalls} from "../../../mixins/ajaxCallsMixin";
     import _ from 'lodash';
 
@@ -148,6 +150,7 @@
         inject: ["eventHub"],
         components: {
             vSelect,
+            Avatar
         },
         mixins: [ajaxCalls],
 
