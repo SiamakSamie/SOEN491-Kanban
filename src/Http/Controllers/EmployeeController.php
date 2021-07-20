@@ -37,6 +37,21 @@ class EmployeeController extends Controller
         return response(['success' => 'true'], 200);
     }
 
+    public function deleteEmployee($id)
+    {
+        try {
+            $employee = Employee::find($id);
+            $employee->delete();
+
+        } catch (\Exception $e) {
+            return response([
+                'success' => 'false',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+        return response(['success' => 'true'], 200);
+    }
+
     //PARENT USERS
 
     public function getAllUsers()

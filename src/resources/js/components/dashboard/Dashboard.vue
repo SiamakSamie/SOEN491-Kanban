@@ -55,11 +55,14 @@ export default {
         this.eventHub.$on("save-board", (boardData) => {
             this.saveBoard(boardData);
         });
-        this.eventHub.$on("save-employee", (employeeData) => {
-            this.saveEmployee(employeeData);
-        });
         this.eventHub.$on("delete-board", (boardId) => {
             this.deleteBoard(boardId);
+        });
+        this.eventHub.$on("save-kanban-employee", (employeeData) => {
+            this.saveEmployee(employeeData);
+        });
+        this.eventHub.$on("delete-kanban-employee", (employeeId) => {
+            this.deleteEmployee(employeeId);
         });
     },
 
@@ -69,18 +72,6 @@ export default {
     },
 
     methods: {
-        saveEmployee(employeeData) {
-            this.loadingEmployee = true;
-            const cloneEmployeeData = {...employeeData};
-            console.log(cloneEmployeeData);
-            this.asyncCreateKanbanEmployee(cloneEmployeeData).then(res => {
-                this.asyncGetKanbanEmployees().then((data) => {
-                    this.dashboardData.employees = data.data;
-                    this.loadingEmployee = false;
-                }).catch(res => {console.log(res)});
-            });
-        },
-
         saveBoard(kanbanData) {
             this.loadingBoard = true
             const cloneKanbanData = {...kanbanData};
@@ -106,6 +97,27 @@ export default {
             });
         },
 
+        saveEmployee(employeeData) {
+            this.loadingEmployee = true;
+            const cloneEmployeeData = {...employeeData};
+            console.log(cloneEmployeeData);
+            this.asyncCreateKanbanEmployee(cloneEmployeeData).then(res => {
+                this.asyncGetKanbanEmployees().then((data) => {
+                    this.dashboardData.employees = data.data;
+                    this.loadingEmployee = false;
+                }).catch(res => {console.log(res)});
+            });
+        },
+
+        deleteEmployee(employeeId) {
+            this.loadingEmployee = true;
+            this.asyncDeleteKanbanEmployee(employeeId).then(res => {
+                this.asyncGetKanbanEmployees().then((data) => {
+                    this.dashboardData.employees = data.data;
+                    this.loadingEmployee = false;
+                }).catch(res => {console.log(res)});
+            });
+        },
 
         getDashboardData() {
             this.asyncGetDashboardData().then((data) => {

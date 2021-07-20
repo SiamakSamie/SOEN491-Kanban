@@ -6544,11 +6544,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.eventHub.$on("save-board", function (boardData) {
       _this.saveBoard(boardData);
     });
-    this.eventHub.$on("save-employee", function (employeeData) {
-      _this.saveEmployee(employeeData);
-    });
     this.eventHub.$on("delete-board", function (boardId) {
       _this.deleteBoard(boardId);
+    });
+    this.eventHub.$on("save-kanban-employee", function (employeeData) {
+      _this.saveEmployee(employeeData);
+    });
+    this.eventHub.$on("delete-kanban-employee", function (employeeId) {
+      _this.deleteEmployee(employeeId);
     });
   },
   beforeDestroy: function beforeDestroy() {
@@ -6556,31 +6559,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.eventHub.$off('save-employee');
   },
   methods: {
-    saveEmployee: function saveEmployee(employeeData) {
-      var _this2 = this;
-
-      this.loadingEmployee = true;
-
-      var cloneEmployeeData = _objectSpread({}, employeeData);
-
-      console.log(cloneEmployeeData);
-      this.asyncCreateKanbanEmployee(cloneEmployeeData).then(function (res) {
-        _this2.asyncGetKanbanEmployees().then(function (data) {
-          _this2.dashboardData.employees = data.data;
-          _this2.loadingEmployee = false;
-        })["catch"](function (res) {
-          console.log(res);
-        });
-      });
-    },
     saveBoard: function saveBoard(kanbanData) {
-      var _this3 = this;
+      var _this2 = this;
 
       this.loadingBoard = true;
 
       var cloneKanbanData = _objectSpread({}, kanbanData);
 
       this.asyncCreateBoard(cloneKanbanData).then(function (res) {
+        _this2.eventHub.$emit("update-side-bar");
+
+        _this2.asyncGetBoards().then(function (data) {
+          _this2.dashboardData.boards = data.data;
+          _this2.loadingBoard = false;
+        })["catch"](function (res) {
+          console.log(res);
+        });
+      });
+    },
+    deleteBoard: function deleteBoard(boardId) {
+      var _this3 = this;
+
+      this.loadingBoard = true;
+      this.asyncDeleteBoard(boardId).then(function (res) {
         _this3.eventHub.$emit("update-side-bar");
 
         _this3.asyncGetBoards().then(function (data) {
@@ -6591,26 +6592,41 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       });
     },
-    deleteBoard: function deleteBoard(boardId) {
+    saveEmployee: function saveEmployee(employeeData) {
       var _this4 = this;
 
-      this.loadingBoard = true;
-      this.asyncDeleteBoard(boardId).then(function (res) {
-        _this4.eventHub.$emit("update-side-bar");
+      this.loadingEmployee = true;
 
-        _this4.asyncGetBoards().then(function (data) {
-          _this4.dashboardData.boards = data.data;
-          _this4.loadingBoard = false;
+      var cloneEmployeeData = _objectSpread({}, employeeData);
+
+      console.log(cloneEmployeeData);
+      this.asyncCreateKanbanEmployee(cloneEmployeeData).then(function (res) {
+        _this4.asyncGetKanbanEmployees().then(function (data) {
+          _this4.dashboardData.employees = data.data;
+          _this4.loadingEmployee = false;
+        })["catch"](function (res) {
+          console.log(res);
+        });
+      });
+    },
+    deleteEmployee: function deleteEmployee(employeeId) {
+      var _this5 = this;
+
+      this.loadingEmployee = true;
+      this.asyncDeleteKanbanEmployee(employeeId).then(function (res) {
+        _this5.asyncGetKanbanEmployees().then(function (data) {
+          _this5.dashboardData.employees = data.data;
+          _this5.loadingEmployee = false;
         })["catch"](function (res) {
           console.log(res);
         });
       });
     },
     getDashboardData: function getDashboardData() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.asyncGetDashboardData().then(function (data) {
-        _this5.dashboardData = data.data;
+        _this6.dashboardData = data.data;
       })["catch"](function (res) {
         console.log(res);
       });
@@ -7067,7 +7083,7 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     saveEmployee: function saveEmployee(event) {
       event.target.disabled = true;
-      this.eventHub.$emit("save-employee", this.employeeData);
+      this.eventHub.$emit("save-kanban-employee", this.employeeData);
       this.modalOpen = false;
     },
     deleteEmployee: function deleteEmployee(event) {
@@ -45531,6 +45547,15 @@ var ajaxCalls = {
         _this3.triggerSuccessToast("Employee Added!");
       })["catch"](function (error) {
         _this3.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncDeleteKanbanEmployee: function asyncDeleteKanbanEmployee(employeeId) {
+      var _this4 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-kanban-employee/' + employeeId).then(function () {
+        _this4.triggerSuccessToast("Employee Removed");
+      })["catch"](function (error) {
+        _this4.triggerErrorToast(error.response.data.message);
       });
     },
     asyncGetKanbanEmployees: function asyncGetKanbanEmployees() {
