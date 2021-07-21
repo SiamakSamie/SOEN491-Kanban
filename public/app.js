@@ -7585,11 +7585,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     getKanban: function getKanban(kanbanID) {
       var _this2 = this;
 
-      this.eventHub.$emit("set-loading-state", true);
       this.asyncGetKanbanData(kanbanID).then(function (data) {
         _this2.kanban = data.data;
-
-        _this2.eventHub.$emit("set-loading-state", false);
       })["catch"](function (res) {
         console.log(res);
       });
