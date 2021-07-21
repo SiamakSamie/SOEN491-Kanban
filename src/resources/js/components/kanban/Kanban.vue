@@ -62,12 +62,8 @@ export default {
     methods: {
 
         getKanban(kanbanID) {
-            this.eventHub.$emit("set-loading-state", true);
-
             this.asyncGetKanbanData(kanbanID).then((data) => {
                 this.kanban = data.data;
-                this.eventHub.$emit("set-loading-state", false);
-
             }).catch(res => {
                 console.log(res)
             });
