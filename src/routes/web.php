@@ -37,5 +37,11 @@
             Route::get('/get-all-users', 'EmployeeController@getAllUsers');
             Route::get('/get-some-users/{searchTerm}', 'EmployeeController@getSomeUsers');
 
+            // Members
+
+            Route::post('/create-members/{id}', 'MemberController@createMembers');
+            Route::post('/delete-member/{id}', 'MemberController@deleteMember');
+            Route::get('/get-members/{id}', 'MemberController@getMembers');
+
         });
     });

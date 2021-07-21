@@ -69,6 +69,24 @@ export const ajaxCalls = {
             return axios.get('get-some-users/' + searchTerm);
         },
 
+        // Members
+
+        asyncGetMembers(boardId) {
+            return axios.get('get-members/' + boardId);
+        },
+
+        asyncAddMembers(memberData, boardId) {
+            return axios.post('create-members/' + boardId, memberData).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncDeleteMember(memberId) {
+            return axios.post('delete-member/' + memberId).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
 
         // Triggers
 

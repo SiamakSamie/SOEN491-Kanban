@@ -7519,6 +7519,13 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./kanbanComponents/KanbanBar.vue */ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue");
 /* harmony import */ var _mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../mixins/ajaxCallsMixin */ "./src/resources/js/mixins/ajaxCallsMixin.js");
+/* harmony import */ var _kanbanComponents_AddMemberModal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./kanbanComponents/AddMemberModal */ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -7528,6 +7535,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -7537,7 +7547,8 @@ __webpack_require__.r(__webpack_exports__);
     'id': Number
   },
   components: {
-    KanbanBar: _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+    KanbanBar: _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
+    AddMemberModal: _kanbanComponents_AddMemberModal__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   data: function data() {
     return {
@@ -7551,18 +7562,275 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     this.getKanban(this.id);
   },
+  watch: {
+    id: function id(newVal) {
+      this.getKanban(newVal);
+    }
+  },
+  created: function created() {
+    var _this = this;
+
+    this.eventHub.$on("save-members", function (selectedMembers) {
+      _this.saveMember(selectedMembers);
+    });
+    this.eventHub.$on("remove-member", function (memberData) {
+      _this.deleteMember(memberData);
+    });
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.eventHub.$off('save-members');
+    this.eventHub.$off('remove-member');
+  },
   methods: {
     getKanban: function getKanban(kanbanID) {
-      var _this = this;
+      var _this2 = this;
 
       this.eventHub.$emit("set-loading-state", true);
       this.asyncGetKanbanData(kanbanID).then(function (data) {
-        _this.kanban = data.data;
+        _this2.kanban = data.data;
 
-        _this.eventHub.$emit("set-loading-state", false);
+        _this2.eventHub.$emit("set-loading-state", false);
       })["catch"](function (res) {
         console.log(res);
       });
+    },
+    saveMember: function saveMember(selectedMembers) {
+      var _this3 = this;
+
+      this.loadingMembers = {
+        memberId: null,
+        isLoading: true
+      };
+
+      var cloneSelectedMembers = _objectSpread({}, selectedMembers);
+
+      this.asyncAddMembers(cloneSelectedMembers, this.kanban.id).then(function () {
+        _this3.asyncGetMembers(_this3.kanban.id).then(function (data) {
+          _this3.kanban.members = data.data;
+          _this3.loadingMembers = {
+            memberId: null,
+            isLoading: false
+          };
+
+          _this3.triggerSuccessToast('New kanban members saved');
+        })["catch"](function (res) {
+          console.log(res);
+        });
+      })["catch"](function (res) {
+        console.log(res);
+      });
+    },
+    deleteMember: function deleteMember(member) {
+      var _this4 = this;
+
+      this.asyncDeleteMember(member.id).then(function () {
+        _this4.loadingMembers = {
+          memberId: member.id,
+          isLoading: true
+        };
+
+        _this4.asyncGetMembers(_this4.kanban.id).then(function (data) {
+          _this4.kanban.members = data.data;
+          _this4.loadingMembers = {
+            memberId: null,
+            isLoading: false
+          };
+
+          _this4.triggerSuccessToast('Kanban member deleted');
+        })["catch"](function (res) {
+          console.log(res);
+        });
+      })["catch"](function (res) {
+        console.log(res);
+      });
+      this.getKanban(this.kanban.id);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global/Avatar.vue */ "./src/resources/js/components/global/Avatar.vue");
+/* harmony import */ var _mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../mixins/ajaxCallsMixin */ "./src/resources/js/mixins/ajaxCallsMixin.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  inject: ["eventHub"],
+  components: {
+    vSelect: vue_select__WEBPACK_IMPORTED_MODULE_0___default.a,
+    Avatar: _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  mixins: [_mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_2__["ajaxCalls"]],
+  props: {
+    kanbanData: Object
+  },
+  data: function data() {
+    return {
+      filter: "",
+      modalOpen: false,
+      isSavingMember: false,
+      kanbanID: null,
+      selectedMembers: null,
+      allKanbanUsers: []
+    };
+  },
+  created: function created() {
+    var _this = this;
+
+    this.eventHub.$on("add-member", function () {
+      _this.modalOpen = true;
+    });
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.eventHub.$off('add-member');
+  },
+  mounted: function mounted() {
+    var _this2 = this;
+
+    this.asyncGetKanbanEmployees().then(function (data) {
+      _this2.allKanbanUsers = data.data;
+    })["catch"](function (res) {
+      console.log(res);
+    });
+  },
+  computed: {
+    filtered: function filtered() {
+      var _this3 = this;
+
+      var regex = new RegExp(this.filter, "i");
+      return this.kanbanData.members.filter(function (e) {
+        return !_this3.filter || e.name.match(regex);
+      });
+    }
+  },
+  methods: {
+    saveMember: function saveMember() {
+      this.eventHub.$emit("save-members", this.selectedMembers);
+      this.modalOpen = false;
+      this.selectedMembers = null;
+    },
+    removeMember: function removeMember($memberData) {
+      this.eventHub.$emit("remove-member", $memberData);
     }
   }
 });
@@ -27853,11 +28121,454 @@ var render = function() {
               kanbanName: _vm.kanban.name,
               loadingMembers: _vm.loadingMembers
             }
-          })
+          }),
+          _vm._v(" "),
+          _c("add-member-modal", { attrs: { kanbanData: _vm.kanban } })
         ],
         1
       )
     : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2&":
+/*!*********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2& ***!
+  \*********************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c(
+        "transition",
+        {
+          attrs: {
+            "enter-active-class": "transition duration-500 ease-out transform",
+            "enter-class": " opacity-0 bg-blue-200",
+            "leave-active-class": "transition duration-300 ease-in transform",
+            "leave-to-class": "opacity-0 bg-blue-200"
+          }
+        },
+        [
+          _vm.modalOpen
+            ? _c("div", {
+                staticClass:
+                  "overflow-auto fixed inset-0 bg-gray-700 bg-opacity-50 z-30"
+              })
+            : _vm._e()
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "transition",
+        {
+          attrs: {
+            "enter-active-class": "transition duration-300 ease-out transform ",
+            "enter-class": "scale-95 opacity-0 -translate-y-10",
+            "enter-to-class": "scale-100 opacity-100",
+            "leave-active-class": "transition duration-150 ease-in transform",
+            "leave-class": "scale-100 opacity-100",
+            "leave-to-class": "scale-95 opacity-0"
+          }
+        },
+        [
+          _vm.modalOpen
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "fixed inset-0 z-40 flex items-start justify-center"
+                },
+                [
+                  _c("div", {
+                    staticClass: "overflow-auto fixed h-full w-full",
+                    on: {
+                      click: function($event) {
+                        _vm.modalOpen = false
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "flex flex-col overflow-auto z-50 w-100 bg-white rounded-md shadow-2xl m-10",
+                      staticStyle: {
+                        width: "700px",
+                        "min-height": "300px",
+                        "max-height": "80%"
+                      }
+                    },
+                    [
+                      _c(
+                        "div",
+                        {
+                          staticClass:
+                            "flex justify-between p-5 bg-indigo-800 border-b"
+                        },
+                        [
+                          _c("div", { staticClass: "space-y-1" }, [
+                            _c(
+                              "h1",
+                              { staticClass: "text-2xl text-white pb-2" },
+                              [_vm._v("Add Members")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "p",
+                              {
+                                staticClass:
+                                  "text-sm font-medium leading-5 text-gray-500"
+                              },
+                              [
+                                _vm._v(
+                                  "\n                            Adding employees to this phone line "
+                                )
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", [
+                            _c(
+                              "button",
+                              {
+                                staticClass:
+                                  "focus:outline-none flex flex-col items-center text-gray-400 hover:text-gray-500 transition duration-150 ease-in-out pl-8",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.modalOpen = false
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", { staticClass: "fas fa-times" }),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass:
+                                      "text-xs font-semibold text-center leading-3 uppercase"
+                                  },
+                                  [_vm._v("Esc")]
+                                )
+                              ]
+                            )
+                          ])
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "form",
+                        { staticClass: "space-y-6 overflow-auto px-8 py-6" },
+                        [
+                          _c("div", { staticClass: "space-y-6" }, [
+                            _c(
+                              "div",
+                              { staticClass: "space-y-4" },
+                              [
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass:
+                                      "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                Employees\n                            "
+                                    )
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c("vSelect", {
+                                  staticClass: "text-gray-400",
+                                  staticStyle: { "margin-top": "7px" },
+                                  attrs: {
+                                    options: _vm.allKanbanUsers,
+                                    getOptionLabel: function(opt) {
+                                      return opt.user.name
+                                    },
+                                    multiple: "",
+                                    placeholder: "Select Members"
+                                  },
+                                  scopedSlots: _vm._u(
+                                    [
+                                      {
+                                        key: "option",
+                                        fn: function(option) {
+                                          return [
+                                            _c("avatar", {
+                                              staticClass:
+                                                "mr-3 m-1 float-left",
+                                              attrs: {
+                                                name: option.user.name,
+                                                size: 4
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("p", { staticClass: "inline" }, [
+                                              _vm._v(_vm._s(option.user.name))
+                                            ])
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        key: "no-options",
+                                        fn: function(ref) {
+                                          var search = ref.search
+                                          var searching = ref.searching
+                                          var loading = ref.loading
+                                          return [
+                                            _vm._v(
+                                              "\n                                    No result .\n                                "
+                                            )
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    null,
+                                    false,
+                                    3731527752
+                                  ),
+                                  model: {
+                                    value: _vm.selectedMembers,
+                                    callback: function($$v) {
+                                      _vm.selectedMembers = $$v
+                                    },
+                                    expression: "selectedMembers"
+                                  }
+                                })
+                              ],
+                              1
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass:
+                                "w-full grid sm:grid-cols-2 gap-3 sm:gap-3"
+                            },
+                            [
+                              _c(
+                                "button",
+                                {
+                                  staticClass:
+                                    "px-4 py-3 border border-gray-200 rounded text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-600 transition duration-300 ease-in-out",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.modalOpen = false
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            Cancel\n                        "
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass:
+                                    "px-4 py-3 border border-transparent rounded text-white bg-indigo-600 hover:bg-indigo-500 transition duration-300 ease-in-out",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.saveMember()
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            Add Members\n                        "
+                                  )
+                                ]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "figure",
+                            {
+                              staticClass:
+                                "bg-gray-100 rounded-xl overflow-y-auto"
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "pt-6 md:p-8 text-center md:text-left space-y-4"
+                                },
+                                [
+                                  _c(
+                                    "figcaption",
+                                    { staticClass: "font-medium" },
+                                    [
+                                      _c(
+                                        "p",
+                                        { staticClass: "pb-5 text-gray-500" },
+                                        [
+                                          _vm._v(
+                                            "\n                                    There are a total of " +
+                                              _vm._s(
+                                                _vm.kanbanData.members.length
+                                              ) +
+                                              " members on this phone\n                                    line "
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "label",
+                                        { staticClass: "block pb-5" },
+                                        [
+                                          _c("input", {
+                                            directives: [
+                                              {
+                                                name: "model",
+                                                rawName: "v-model",
+                                                value: _vm.filter,
+                                                expression: "filter"
+                                              }
+                                            ],
+                                            staticClass:
+                                              "px-3 py-3 placeholder-gray-400 text-gray-700 rounded border border-gray-400 w-full pr-10 outline-none text-md leading-4",
+                                            attrs: {
+                                              placeholder: "Filter members",
+                                              type: "text"
+                                            },
+                                            domProps: { value: _vm.filter },
+                                            on: {
+                                              input: function($event) {
+                                                if ($event.target.composing) {
+                                                  return
+                                                }
+                                                _vm.filter = $event.target.value
+                                              }
+                                            }
+                                          })
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm.filtered.length === 0
+                                        ? _c(
+                                            "p",
+                                            { staticClass: "text-gray-900" },
+                                            [
+                                              _vm._v(
+                                                "\n                                    No matching results "
+                                              )
+                                            ]
+                                          )
+                                        : _vm._e(),
+                                      _vm._v(" "),
+                                      _vm._l(_vm.filtered, function(
+                                        member,
+                                        memberIndex
+                                      ) {
+                                        return [
+                                          _c(
+                                            "div",
+                                            {
+                                              key: memberIndex,
+                                              staticClass:
+                                                "flex justify-between items-center border-b p-1"
+                                            },
+                                            [
+                                              _c(
+                                                "div",
+                                                {
+                                                  staticClass:
+                                                    "flex items-center"
+                                                },
+                                                [
+                                                  _c("avatar", {
+                                                    staticClass: "mr-3",
+                                                    attrs: {
+                                                      name:
+                                                        member.employee.user
+                                                          .name,
+                                                      size: 6
+                                                    }
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "span",
+                                                    {
+                                                      staticClass:
+                                                        "py-2 mr-3 text-gray-600"
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        _vm._s(
+                                                          member.employee.user
+                                                            .name
+                                                        )
+                                                      )
+                                                    ]
+                                                  )
+                                                ],
+                                                1
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "a",
+                                                {
+                                                  staticClass:
+                                                    "cursor-pointer text-gray-400 text-sm hover:text-gray-600 transition duration-300 ease-in-out",
+                                                  on: {
+                                                    click: function($event) {
+                                                      return _vm.removeMember(
+                                                        member
+                                                      )
+                                                    }
+                                                  }
+                                                },
+                                                [_vm._v("remove")]
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            : _vm._e()
+        ]
+      )
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -45701,6 +46412,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue":
+/*!********************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue ***!
+  \********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AddMemberModal.vue?vue&type=template&id=5d9ef3d2& */ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2&");
+/* harmony import */ var _AddMemberModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AddMemberModal.vue?vue&type=script&lang=js& */ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _AddMemberModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_AddMemberModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./AddMemberModal.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_AddMemberModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2&":
+/*!***************************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2& ***!
+  \***************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./AddMemberModal.vue?vue&type=template&id=5d9ef3d2& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue?vue&type=template&id=5d9ef3d2&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddMemberModal_vue_vue_type_template_id_5d9ef3d2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue":
 /*!***************************************************************************!*\
   !*** ./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue ***!
@@ -45845,6 +46625,24 @@ var ajaxCalls = {
       }
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-some-users/' + searchTerm);
+    },
+    // Members
+    asyncGetMembers: function asyncGetMembers(boardId) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-members/' + boardId);
+    },
+    asyncAddMembers: function asyncAddMembers(memberData, boardId) {
+      var _this5 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-members/' + boardId, memberData)["catch"](function (error) {
+        _this5.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncDeleteMember: function asyncDeleteMember(memberId) {
+      var _this6 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-member/' + memberId)["catch"](function (error) {
+        _this6.triggerErrorToast(error.response.data.message);
+      });
     },
     // Triggers
     triggerSuccessToast: function triggerSuccessToast(message) {
