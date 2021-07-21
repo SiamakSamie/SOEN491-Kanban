@@ -10,6 +10,10 @@ export const ajaxCalls = {
             return axios.get('get-dashboard-data');
         },
 
+        asyncGetKanbanData(id) {
+            return axios.get('get-board-data/' + id);
+        },
+
         // Boards
 
         asyncGetBoards() {

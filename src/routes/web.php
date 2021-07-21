@@ -17,6 +17,8 @@
             //Kanban App Data
 
             Route::get('/get-dashboard-data', 'KanbanController@getDashboardData');
+            Route::get('/get-board-data/{id}', 'KanbanController@getkanbanData');
+
 
             // Board
 

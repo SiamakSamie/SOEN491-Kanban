@@ -7517,6 +7517,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./kanbanComponents/KanbanBar.vue */ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue");
+/* harmony import */ var _mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../mixins/ajaxCallsMixin */ "./src/resources/js/mixins/ajaxCallsMixin.js");
 //
 //
 //
@@ -7526,10 +7528,121 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
+
+
 /* harmony default export */ __webpack_exports__["default"] = ({
+  inject: ["eventHub"],
+  mixins: [_mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_1__["ajaxCalls"]],
   props: {
     'id': Number
+  },
+  components: {
+    KanbanBar: _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  data: function data() {
+    return {
+      kanban: null,
+      loadingMembers: {
+        memberId: null,
+        isLoading: false
+      }
+    };
+  },
+  mounted: function mounted() {
+    this.getKanban(this.id);
+  },
+  methods: {
+    getKanban: function getKanban(kanbanID) {
+      var _this = this;
+
+      this.eventHub.$emit("set-loading-state", true);
+      this.asyncGetKanbanData(kanbanID).then(function (data) {
+        _this.kanban = data.data;
+
+        _this.eventHub.$emit("set-loading-state", false);
+      })["catch"](function (res) {
+        console.log(res);
+      });
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/Avatar.vue */ "./src/resources/js/components/global/Avatar.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  inject: ["eventHub"],
+  components: {
+    Avatar: _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  props: {
+    kanbanName: {
+      type: String,
+      "default": "no title"
+    },
+    kanbanID: {
+      type: Number,
+      "default": null
+    },
+    kanbanMembers: {
+      type: Array,
+      "default": function _default() {
+        return [];
+      }
+    },
+    kanbanInfo: {
+      type: Object,
+      "default": function _default() {
+        return {};
+      }
+    },
+    loadingMembers: {
+      type: Object
+    }
+  },
+  methods: {
+    createMember: function createMember() {
+      this.eventHub.$emit("add-member");
+    }
   }
 });
 
@@ -27729,22 +27842,112 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _vm._v(
-        "\n    This is the kanban page showing board id:" +
-          _vm._s(_vm.id) +
-          "\n\n    "
-      ),
-      _c("router-link", { attrs: { to: { path: "/kanban" } } }, [
-        _c("span", { staticClass: "text-gray-700 bg-gray-50 p-2 m-2" }, [
-          _vm._v("Go to dashboard")
-        ])
-      ])
-    ],
-    1
-  )
+  return _vm.kanban !== null
+    ? _c(
+        "div",
+        [
+          _c("kanban-bar", {
+            attrs: {
+              kanbanId: _vm.kanban.id,
+              kanbanMembers: _vm.kanban.members,
+              kanbanName: _vm.kanban.name,
+              loadingMembers: _vm.loadingMembers
+            }
+          })
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8&":
+/*!****************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8& ***!
+  \****************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { staticClass: "flex flex-wrap p-4 pl-10" }, [
+      _c("h3", { staticClass: "text-3xl text-gray-800 font-bold py-1 pr-8" }, [
+        _vm._v(_vm._s(_vm.kanbanName))
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "flex items-center py-1 pr-8",
+          class: { "animate-pulse": _vm.loadingMembers.isLoading }
+        },
+        [
+          _c("p", { staticClass: "px-2 text-gray-500 pr-4" }, [
+            _vm._v(_vm._s(_vm.kanbanMembers.length) + " members")
+          ]),
+          _vm._v(" "),
+          _vm._l(_vm.kanbanMembers, function(member, memberIndex) {
+            return [
+              memberIndex < 5
+                ? [
+                    _c("avatar", {
+                      key: memberIndex,
+                      staticClass:
+                        "cursor-pointer transform hover:-translate-y-1 transition duration-300",
+                      class: { "-ml-3": memberIndex > 0 },
+                      attrs: {
+                        borderSize: 2,
+                        name: member.employee.user.name,
+                        size: 10,
+                        tooltip: true
+                      }
+                    })
+                  ]
+                : _vm._e()
+            ]
+          }),
+          _vm._v(" "),
+          _vm.kanbanMembers.length > 5
+            ? _c(
+                "span",
+                {
+                  staticClass:
+                    "z-10 flex items-center justify-center font-semibold text-gray-800 text-sm w-10 h-10 rounded-full bg-gray-300 border-2 border-white -ml-3 pr-2"
+                },
+                [_vm._v("+" + _vm._s(_vm.kanbanMembers.length - 5))]
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass:
+                "z-20 items-center justify-center w-10 h-10 mr-2 text-indigo-100 transition-colors duration-150 bg-indigo-700 rounded-full focus:outline-none hover:bg-indigo-800 border-2 border-white -ml-3",
+              on: {
+                click: function($event) {
+                  return _vm.createMember()
+                }
+              }
+            },
+            [_c("i", { staticClass: "fas fa-plus" })]
+          )
+        ],
+        2
+      )
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -45498,6 +45701,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue":
+/*!***************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue ***!
+  \***************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./KanbanBar.vue?vue&type=template&id=8c2940e8& */ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8&");
+/* harmony import */ var _KanbanBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./KanbanBar.vue?vue&type=script&lang=js& */ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _KanbanBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_KanbanBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./KanbanBar.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_KanbanBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8&":
+/*!**********************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8& ***!
+  \**********************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./KanbanBar.vue?vue&type=template&id=8c2940e8& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue?vue&type=template&id=8c2940e8&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_KanbanBar_vue_vue_type_template_id_8c2940e8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/resources/js/mixins/ajaxCallsMixin.js":
 /*!***************************************************!*\
   !*** ./src/resources/js/mixins/ajaxCallsMixin.js ***!
@@ -45516,6 +45788,9 @@ var ajaxCalls = {
     // Kanban App Data
     asyncGetDashboardData: function asyncGetDashboardData() {
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-dashboard-data');
+    },
+    asyncGetKanbanData: function asyncGetKanbanData(id) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-board-data/' + id);
     },
     // Boards
     asyncGetBoards: function asyncGetBoards() {
