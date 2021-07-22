@@ -27,17 +27,17 @@ class KanbanController extends Controller
 
     public function getkanbanData($id)
     {
-        return Board::with('rows.columns.taskCards.badge')
-            ->with(['rows.columns.taskCards.assignedTo.employee.user' => function ($q) {
+        return Board::with('rows.columns.tasks.badge')
+            ->with(['rows.columns.tasks.assignedTo.employee.user' => function ($q) {
                 $q->select(['id', 'name']);
             }])
-            ->with(['rows.columns.taskCards.reporter' => function ($q) {
+            ->with(['rows.columns.tasks.reporter' => function ($q) {
                 $q->select(['id', 'name']);
             }])
             ->with(['members.employee.user' => function ($q) {
                 $q->select(['id', 'name']);
             }])
-            ->with(['rows.columns.taskCards.row', 'rows.columns.taskCards.column',])
+            ->with(['rows.columns.tasks.row', 'rows.columns.tasks.column',])
             ->find($id);
     }
 

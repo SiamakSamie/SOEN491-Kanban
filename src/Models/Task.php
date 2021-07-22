@@ -1,6 +1,6 @@
 <?php
 
-namespace siamaksamie\kanban\Models;
+namespace SiamakSamie\Kanban\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;

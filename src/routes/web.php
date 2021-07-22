@@ -43,5 +43,10 @@
             Route::post('/delete-member/{id}', 'MemberController@deleteMember');
             Route::get('/get-members/{id}', 'MemberController@getMembers');
 
+            // Columns
+            Route::post('/save-row-and-columns', 'RowAndColumnsController@createOrUpdateRowAndColumns');
+            Route::post('/delete-row/{id}', 'RowAndColumnsController@deleteRow');
+
+
         });
     });
