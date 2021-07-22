@@ -15,8 +15,10 @@ class RowAndColumnsController extends Controller
         $rowData = $request->all();
         try {
             if ($rowData['rowId'] !== null) {
-                $updatedRow = Row::where('id', $rowData['rowId'])
+                Row::where('id', $rowData['rowId'])
                     ->update(['name' => $rowData['name'], 'index' => $rowData['rowIndex']]);
+
+
                 $rowId = $rowData['rowId'];
             } else {
                 $newRow = Row::create([
@@ -26,6 +28,33 @@ class RowAndColumnsController extends Controller
                 ]);
                 $rowId = $newRow->id;
             }
+
+            /*  Start: Delete columns
+                Code to compare new list of columns with existing list of columns
+                If an existing column isn't included in the new list then it was selected to be deleted
+            */
+
+            $currentRow =  Row::where('id', $rowId)->with('columns')->get()->toArray();
+            $currentColumns = $currentRow[0]['columns'];
+            $sentColumns = $rowData['columns'];
+
+            $currentColumnsId = array_map(function($e) {
+                return is_object($e) ? $e->id : $e['id'];
+            }, $currentColumns);
+
+            $sentColumnsId = array_map(function($e) {
+                return is_object($e) ? $e->id : $e['id'];
+            }, $sentColumns);
+
+            foreach ($currentColumnsId as $currentColumnId){
+                if (!in_array($currentColumnId, $sentColumnsId))
+                {
+                    $column = Column::find($currentColumnId);
+                    $column->delete();
+                }
+            }
+
+            /*  End : Delete columns */
 
             foreach ($rowData['columns'] as $key=>$column) {
                 if ($column['id'] !== null) {
@@ -54,7 +83,7 @@ class RowAndColumnsController extends Controller
 
     public function deleteRow($id)
     {
-        $column = Row::find($id);
-        $column->delete();
+        $Row = Row::find($id);
+        $Row->delete();
     }
 }
