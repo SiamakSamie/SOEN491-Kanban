@@ -104,8 +104,8 @@ export const ajaxCalls = {
 
         // Kanban Drag Functions
 
-        asyncUpdateTaskCardIndexes(taskCards) {
-            return axios.post('update-task-card-indexes', taskCards).catch((error) => {
+        asyncUpdateTaskCardsIndexes(taskCards) {
+            return axios.post('update-task-cards-indexes', taskCards).catch((error) => {
                 this.triggerErrorToast(error.response.data.message);
             });
         },

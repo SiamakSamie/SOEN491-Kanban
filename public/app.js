@@ -7799,7 +7799,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       switch (eventName) {
         case "moved":
-          this.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+          this.asyncUpdateTaskCardSIndexes(taskCardData).then(function () {
             _this7.isDraggableDisabled = false;
 
             _this7.triggerSuccessToast('task moved');
@@ -53962,10 +53962,10 @@ var ajaxCalls = {
       });
     },
     // Kanban Drag Functions
-    asyncUpdateTaskCardIndexes: function asyncUpdateTaskCardIndexes(taskCards) {
+    asyncUpdateTaskCardsIndexes: function asyncUpdateTaskCardsIndexes(taskCards) {
       var _this9 = this;
 
-      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-card-indexes', taskCards)["catch"](function (error) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-cards-indexes', taskCards)["catch"](function (error) {
         _this9.triggerErrorToast(error.response.data.message);
       });
     },

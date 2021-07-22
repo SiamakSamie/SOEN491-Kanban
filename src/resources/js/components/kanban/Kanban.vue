@@ -248,7 +248,7 @@ export default {
 
             switch (eventName) {
                 case "moved":
-                    this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                    this.asyncUpdateTaskCardSIndexes(taskCardData).then(() => {
                         this.isDraggableDisabled = false
                         this.triggerSuccessToast('task moved')
                     });

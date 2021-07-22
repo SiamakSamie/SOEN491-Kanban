@@ -30,14 +30,14 @@ class TaskController extends Controller
             }])->get();
     }
 
-    public function updateTaskCardIndexes(Request $request)
+    public function updateTaskCardsIndexes(Request $request)
     {
-        $taskCards = $request->all();
+        $tasks = $request->all();
         $newIndex = 0;
         try {
-            foreach ($taskCards as $taskCard) {
+            foreach ($tasks as $task) {
                 $newIndex++;
-                Task::find($taskCard['id'])->update(['index' => $newIndex]);
+                Task::find($task['id'])->update(['index' => $newIndex]);
             }
         } catch (\Exception $e) {
             return response([
