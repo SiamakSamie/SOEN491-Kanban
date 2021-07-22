@@ -248,14 +248,14 @@ export default {
 
             switch (eventName) {
                 case "moved":
-                    this.asyncUpdateTaskCardSIndexes(taskCardData).then(() => {
+                    this.asyncUpdateTaskCardsIndexes(taskCardData).then(() => {
                         this.isDraggableDisabled = false
                         this.triggerSuccessToast('task moved')
                     });
                     break;
                 case "added":
                     this.asyncUpdateTaskCardRowAndColumnId(columnId, rowId, event.added.element.id).then(() => {
-                            this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                            this.asyncUpdateTaskCardsIndexes(taskCardData).then(() => {
                                 this.asyncGetTaskCardsByColumn(columnId).then((data) => {
                                     this.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
                                 }).catch(res => {
@@ -268,7 +268,7 @@ export default {
                     );
                     break;
                 case "removed":
-                    this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                    this.asyncUpdateTaskCardsIndexes(taskCardData).then(() => {
                         this.isDraggableDisabled = false
                     });
                     break;

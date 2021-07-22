@@ -7799,7 +7799,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       switch (eventName) {
         case "moved":
-          this.asyncUpdateTaskCardSIndexes(taskCardData).then(function () {
+          this.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
             _this7.isDraggableDisabled = false;
 
             _this7.triggerSuccessToast('task moved');
@@ -7808,7 +7808,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         case "added":
           this.asyncUpdateTaskCardRowAndColumnId(columnId, rowId, event.added.element.id).then(function () {
-            _this7.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+            _this7.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
               _this7.asyncGetTaskCardsByColumn(columnId).then(function (data) {
                 _this7.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
               })["catch"](function (res) {
@@ -7823,7 +7823,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           break;
 
         case "removed":
-          this.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+          this.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
             _this7.isDraggableDisabled = false;
           });
           break;
