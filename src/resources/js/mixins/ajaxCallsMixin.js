@@ -87,6 +87,19 @@ export const ajaxCalls = {
             });
         },
 
+        // Row and Columns
+
+        asyncCreateRowAndColumns(rowData) {
+            return axios.post('save-row-and-columns', rowData).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncDeleteRow(rowId) {
+            return axios.post('delete-row/' + rowId).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
 
         // Triggers
 
