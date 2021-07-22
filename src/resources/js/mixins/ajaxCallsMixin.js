@@ -101,6 +101,37 @@ export const ajaxCalls = {
             });
         },
 
+
+        // Kanban Drag Functions
+
+        asyncUpdateTaskCardIndexes(taskCards) {
+            return axios.post('update-task-card-indexes', taskCards).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncUpdateTaskCardRowAndColumnId(columnId, rowId, taskCardId) {
+            return axios.post('update-task-card-row-and-column/' + columnId + '/' +rowId +'/'+ taskCardId).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncGetTaskCardsByColumn(columnId) {
+            return axios.post('get-task-cards-by-column/' + columnId);
+        },
+
+        asyncUpdateColumnIndexes(columns) {
+            return axios.post('update-column-indexes', columns).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
+        asyncUpdateRowIndexes(rows) {
+            return axios.post('update-row-indexes', rows).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
         // Triggers
 
         triggerSuccessToast(message) {

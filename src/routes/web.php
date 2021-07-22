@@ -47,6 +47,14 @@
             Route::post('/save-row-and-columns', 'RowAndColumnsController@createOrUpdateRowAndColumns');
             Route::post('/delete-row/{id}', 'RowAndColumnsController@deleteRow');
 
+            // Kanban Drag Calls
+
+            Route::post('/get-task-cards-by-column/{id}', 'TaskController@getTaskCardsByColumn');
+            Route::post('/update-task-card-indexes', 'TaskController@updateTaskCardIndexes');
+            Route::post('/update-column-indexes', 'RowAndColumnsController@updateColumnIndexes');
+            Route::post('/update-row-indexes', 'RowAndColumnsController@updateRowIndexes');
+            Route::post('/update-task-card-row-and-column/{columnId}/{rowId}/{taskCardId}', 'TaskController@updateTaskCardRowAndColumnId');
+
 
         });
     });

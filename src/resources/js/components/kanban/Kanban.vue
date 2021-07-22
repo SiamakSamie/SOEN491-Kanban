@@ -5,26 +5,72 @@
                     :kanbanName="kanban.name"
                     :loadingMembers="loadingMembers"></kanban-bar>
 
-        <div :key="row.id" class="p-2" v-for="(row, rowIndex) in kanban.rows">
+        <draggable @end="getRowChangeData($event)"
+                   :animation="200"
+                   :list="kanban.rows"
+                   class="h-full list-group"
+                   :disabled="isDraggableDisabled"
+        >
 
-            <div class="border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
-                 v-if="loadingRow.rowId === row.id && loadingRow.isLoading ">
-                <h2 class="text-gray-100 font-medium tracking-wide animate-pulse">
-                    Loading... </h2>
+            <div :key="row.id" class="mx-10 my-3" v-for="(row, rowIndex) in kanban.rows">
+
+                <div class="border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
+                     v-if="loadingRow.rowId === row.id && loadingRow.isLoading ">
+                    <h2 class="text-gray-100 font-medium tracking-wide animate-pulse">
+                        Loading... </h2>
+                </div>
+                <div class="border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between" v-else>
+                    <h2 class="text-gray-100 font-medium tracking-wide">
+                        {{ row.name }} </h2>
+
+                    <a @click="createRowAndColumns(rowIndex, row.columns, row.id, row.name)"
+                       class="px-2 text-gray-500 hover:text-gray-400 transition duration-300 ease-in-out focus:outline-none">
+                        <i class="fas fa-business-time"></i>
+                    </a>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="space-x-2  flex flex-1 flex-col pt-3 pb-2 overflow-x-auto overflow-y-hidden">
+
+                        <draggable :animation="200"
+                                   class="h-full list-group flex"
+                                   :list="row.columns"
+                                   :group="'row-'+ row.id"
+                                   :disabled="isDraggableDisabled"
+                                   @end="getColumnChangeData($event, rowIndex)">
+                            <div :key="column.id"
+                                 class="flex-1 bg-gray-200 px-3 py-3 column-width rounded mr-4"
+                                 v-for="(column, columnIndex) in row.columns">
+                                <div class="flex" v-if="loadingCards.columnId === column.id && loadingCards.isLoading ">
+                                    <p class="flex-auto text-gray-700 font-semibold font-sans tracking-wide pt-1 animate-pulse">
+                                        Loading... </p>
+                                </div>
+                                <div class="flex" v-else>
+
+                                    <p class="flex-auto text-gray-700 font-semibold font-sans tracking-wide pt-1">
+                                        {{ column.name }} </p>
+
+                                    <button class="w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </button>
+                                </div>
+                                <draggable :animation="200"
+                                           :disabled="isDraggableDisabled"
+                                           :list="column.tasks"
+                                           @change="getTaskChangeData($event, columnIndex, rowIndex)"
+                                           class="h-full list-group"
+                                           group="tasks">
+                                    <div :class="{'opacity-60':isDraggableDisabled}"
+                                               :key="task.id"
+                                               class="mt-3 cursor-move bg-red-500 p-5"
+                                               v-for="task in column.tasks">TEST</div>
+                                </draggable>
+                            </div>
+                        </draggable>
+                    </div>
+                </div>
             </div>
 
-            <div class="border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between" v-else>
-                <h2 class="text-gray-100 font-medium tracking-wide">
-                    {{ row.name }} </h2>
-
-                <a @click="createRowAndColumns(rowIndex, row.columns, row.id, row.name)"
-                   class="px-2 text-gray-500 hover:text-gray-400 transition duration-300 ease-in-out focus:outline-none">
-                    <i class="fas fa-columns"></i>
-                </a>
-            </div>
-
-
-    </div>
+        </draggable>
 
         <hr class="mt-5"/>
         <button @click="createRowAndColumns(kanban.rows.length, [], null, null)"
@@ -34,6 +80,7 @@
         </button>
 
         <add-row-and-columns-modal :kanbanData="kanban"></add-row-and-columns-modal>
+        <add-member-modal :kanbanData="kanban"></add-member-modal>
     </div>
 </template>
 
@@ -66,6 +113,8 @@ export default {
             kanban: null,
             loadingMembers: {memberId: null, isLoading: false},
             loadingRow: {rowId: null, isLoading: false},
+            loadingCards: {columnId: null, isLoading: false},
+            isDraggableDisabled: false
         };
     },
 
@@ -106,6 +155,7 @@ export default {
         getKanban(kanbanID) {
             this.asyncGetKanbanData(kanbanID).then((data) => {
                 this.kanban = data.data;
+                console.log(this.kanban);
             }).catch(res => {
                 console.log(res)
             });
@@ -185,6 +235,74 @@ export default {
             }).catch(res => {
                 console.log(res)
             });
+        },
+
+        // Whenever a user drags a card
+        getTaskChangeData(event, columnIndex, rowIndex) {
+            let eventName = Object.keys(event)[0];
+            let taskCardData = this.kanban.rows[rowIndex].columns[columnIndex].task_cards;
+            let columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
+            let rowId = this.kanban.rows[rowIndex].id
+            this.isDraggableDisabled = true;
+
+
+            switch (eventName) {
+                case "moved":
+                    this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                        this.isDraggableDisabled = false
+                        this.triggerSuccessToast('task moved')
+                    });
+                    break;
+                case "added":
+                    this.asyncUpdateTaskCardRowAndColumnId(columnId, rowId, event.added.element.id).then(() => {
+                            this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                                this.asyncGetTaskCardsByColumn(columnId).then((data) => {
+                                    this.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
+                                }).catch(res => {
+                                    console.log(res)
+                                });
+                                this.isDraggableDisabled = false
+                                this.triggerSuccessToast('task moved');
+                            });
+                        }
+                    );
+                    break;
+                case "removed":
+                    this.asyncUpdateTaskCardIndexes(taskCardData).then(() => {
+                        this.isDraggableDisabled = false
+                    });
+                    break;
+                default:
+                    alert('event "' + eventName + '" not handled: ');
+            }
+        },
+
+        // Whenever a user drags a column
+        getColumnChangeData(event, rowIndex) {
+
+            if (event.oldIndex !== event.newIndex) {
+                console.log('column');
+                let columns = this.kanban.rows[rowIndex].columns;
+                this.isDraggableDisabled = true;
+                this.asyncUpdateColumnIndexes(columns).then(() => {
+
+                    this.isDraggableDisabled = false
+                    this.getKanban(this.kanban.id);
+                    this.triggerSuccessToast('Column position updated')
+                });
+            }
+        },
+
+        // Whenever a user drags a row
+        getRowChangeData(event) {
+            if (event.oldIndex !== event.newIndex) {
+                this.isDraggableDisabled = true
+                this.asyncUpdateRowIndexes(this.kanban.rows).then(() => {
+                    this.isDraggableDisabled = false
+                    this.getKanban(this.kanban.id);
+                    this.triggerSuccessToast('Row position updated')
+                });
+            }
         },
     }
 

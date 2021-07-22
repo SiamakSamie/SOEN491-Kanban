@@ -7568,6 +7568,53 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -7595,7 +7642,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loadingRow: {
         rowId: null,
         isLoading: false
-      }
+      },
+      loadingCards: {
+        columnId: null,
+        isLoading: false
+      },
+      isDraggableDisabled: false
     };
   },
   mounted: function mounted() {
@@ -7633,6 +7685,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.asyncGetKanbanData(kanbanID).then(function (data) {
         _this2.kanban = data.data;
+        console.log(_this2.kanban);
       })["catch"](function (res) {
         console.log(res);
       });
@@ -7733,6 +7786,83 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       })["catch"](function (res) {
         console.log(res);
       });
+    },
+    // Whenever a user drags a card
+    getTaskChangeData: function getTaskChangeData(event, columnIndex, rowIndex) {
+      var _this7 = this;
+
+      var eventName = Object.keys(event)[0];
+      var taskCardData = this.kanban.rows[rowIndex].columns[columnIndex].task_cards;
+      var columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
+      var rowId = this.kanban.rows[rowIndex].id;
+      this.isDraggableDisabled = true;
+
+      switch (eventName) {
+        case "moved":
+          this.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+            _this7.isDraggableDisabled = false;
+
+            _this7.triggerSuccessToast('task moved');
+          });
+          break;
+
+        case "added":
+          this.asyncUpdateTaskCardRowAndColumnId(columnId, rowId, event.added.element.id).then(function () {
+            _this7.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+              _this7.asyncGetTaskCardsByColumn(columnId).then(function (data) {
+                _this7.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
+              })["catch"](function (res) {
+                console.log(res);
+              });
+
+              _this7.isDraggableDisabled = false;
+
+              _this7.triggerSuccessToast('task moved');
+            });
+          });
+          break;
+
+        case "removed":
+          this.asyncUpdateTaskCardIndexes(taskCardData).then(function () {
+            _this7.isDraggableDisabled = false;
+          });
+          break;
+
+        default:
+          alert('event "' + eventName + '" not handled: ');
+      }
+    },
+    // Whenever a user drags a column
+    getColumnChangeData: function getColumnChangeData(event, rowIndex) {
+      var _this8 = this;
+
+      if (event.oldIndex !== event.newIndex) {
+        console.log('column');
+        var columns = this.kanban.rows[rowIndex].columns;
+        this.isDraggableDisabled = true;
+        this.asyncUpdateColumnIndexes(columns).then(function () {
+          _this8.isDraggableDisabled = false;
+
+          _this8.getKanban(_this8.kanban.id);
+
+          _this8.triggerSuccessToast('Column position updated');
+        });
+      }
+    },
+    // Whenever a user drags a row
+    getRowChangeData: function getRowChangeData(event) {
+      var _this9 = this;
+
+      if (event.oldIndex !== event.newIndex) {
+        this.isDraggableDisabled = true;
+        this.asyncUpdateRowIndexes(this.kanban.rows).then(function () {
+          _this9.isDraggableDisabled = false;
+
+          _this9.getKanban(_this9.kanban.id);
+
+          _this9.triggerSuccessToast('Row position updated');
+        });
+      }
     }
   }
 });
@@ -32116,63 +32246,211 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _vm._l(_vm.kanban.rows, function(row, rowIndex) {
-            return _c("div", { key: row.id, staticClass: "p-2" }, [
-              _vm.loadingRow.rowId === row.id && _vm.loadingRow.isLoading
-                ? _c(
+          _c(
+            "draggable",
+            {
+              staticClass: "h-full list-group",
+              attrs: {
+                animation: 200,
+                list: _vm.kanban.rows,
+                disabled: _vm.isDraggableDisabled
+              },
+              on: {
+                end: function($event) {
+                  return _vm.getRowChangeData($event)
+                }
+              }
+            },
+            _vm._l(_vm.kanban.rows, function(row, rowIndex) {
+              return _c("div", { key: row.id, staticClass: "mx-10 my-3" }, [
+                _vm.loadingRow.rowId === row.id && _vm.loadingRow.isLoading
+                  ? _c(
+                      "div",
+                      {
+                        staticClass:
+                          "border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
+                      },
+                      [
+                        _c(
+                          "h2",
+                          {
+                            staticClass:
+                              "text-gray-100 font-medium tracking-wide animate-pulse"
+                          },
+                          [_vm._v("\n                    Loading... ")]
+                        )
+                      ]
+                    )
+                  : _c(
+                      "div",
+                      {
+                        staticClass:
+                          "border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
+                      },
+                      [
+                        _c(
+                          "h2",
+                          {
+                            staticClass:
+                              "text-gray-100 font-medium tracking-wide"
+                          },
+                          [
+                            _vm._v(
+                              "\n                    " + _vm._s(row.name) + " "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass:
+                              "px-2 text-gray-500 hover:text-gray-400 transition duration-300 ease-in-out focus:outline-none",
+                            on: {
+                              click: function($event) {
+                                return _vm.createRowAndColumns(
+                                  rowIndex,
+                                  row.columns,
+                                  row.id,
+                                  row.name
+                                )
+                              }
+                            }
+                          },
+                          [_c("i", { staticClass: "fas fa-business-time" })]
+                        )
+                      ]
+                    ),
+                _vm._v(" "),
+                _c("div", { staticClass: "flex flex-wrap" }, [
+                  _c(
                     "div",
                     {
                       staticClass:
-                        "border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
+                        "space-x-2  flex flex-1 flex-col pt-3 pb-2 overflow-x-auto overflow-y-hidden"
                     },
                     [
                       _c(
-                        "h2",
+                        "draggable",
                         {
-                          staticClass:
-                            "text-gray-100 font-medium tracking-wide animate-pulse"
-                        },
-                        [_vm._v("\n                Loading... ")]
-                      )
-                    ]
-                  )
-                : _c(
-                    "div",
-                    {
-                      staticClass:
-                        "border bg-gray-700 pl-3 pr-3 rounded py-2 flex justify-between"
-                    },
-                    [
-                      _c(
-                        "h2",
-                        {
-                          staticClass: "text-gray-100 font-medium tracking-wide"
-                        },
-                        [_vm._v("\n                " + _vm._s(row.name) + " ")]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "a",
-                        {
-                          staticClass:
-                            "px-2 text-gray-500 hover:text-gray-400 transition duration-300 ease-in-out focus:outline-none",
+                          staticClass: "h-full list-group flex",
+                          attrs: {
+                            animation: 200,
+                            list: row.columns,
+                            group: "row-" + row.id,
+                            disabled: _vm.isDraggableDisabled
+                          },
                           on: {
-                            click: function($event) {
-                              return _vm.createRowAndColumns(
-                                rowIndex,
-                                row.columns,
-                                row.id,
-                                row.name
-                              )
+                            end: function($event) {
+                              return _vm.getColumnChangeData($event, rowIndex)
                             }
                           }
                         },
-                        [_c("i", { staticClass: "fas fa-columns" })]
+                        _vm._l(row.columns, function(column, columnIndex) {
+                          return _c(
+                            "div",
+                            {
+                              key: column.id,
+                              staticClass:
+                                "flex-1 bg-gray-200 px-3 py-3 column-width rounded mr-4"
+                            },
+                            [
+                              _vm.loadingCards.columnId === column.id &&
+                              _vm.loadingCards.isLoading
+                                ? _c("div", { staticClass: "flex" }, [
+                                    _c(
+                                      "p",
+                                      {
+                                        staticClass:
+                                          "flex-auto text-gray-700 font-semibold font-sans tracking-wide pt-1 animate-pulse"
+                                      },
+                                      [
+                                        _vm._v(
+                                          "\n                                    Loading... "
+                                        )
+                                      ]
+                                    )
+                                  ])
+                                : _c("div", { staticClass: "flex" }, [
+                                    _c(
+                                      "p",
+                                      {
+                                        staticClass:
+                                          "flex-auto text-gray-700 font-semibold font-sans tracking-wide pt-1"
+                                      },
+                                      [
+                                        _vm._v(
+                                          "\n                                    " +
+                                            _vm._s(column.name) +
+                                            " "
+                                        )
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "button",
+                                      {
+                                        staticClass:
+                                          "w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none"
+                                      },
+                                      [
+                                        _c("i", {
+                                          staticClass: "fas fa-plus text-white"
+                                        })
+                                      ]
+                                    )
+                                  ]),
+                              _vm._v(" "),
+                              _c(
+                                "draggable",
+                                {
+                                  staticClass: "h-full list-group",
+                                  attrs: {
+                                    animation: 200,
+                                    disabled: _vm.isDraggableDisabled,
+                                    list: column.tasks,
+                                    group: "tasks"
+                                  },
+                                  on: {
+                                    change: function($event) {
+                                      return _vm.getTaskChangeData(
+                                        $event,
+                                        columnIndex,
+                                        rowIndex
+                                      )
+                                    }
+                                  }
+                                },
+                                _vm._l(column.tasks, function(task) {
+                                  return _c(
+                                    "div",
+                                    {
+                                      key: task.id,
+                                      staticClass:
+                                        "mt-3 cursor-move bg-red-500 p-5",
+                                      class: {
+                                        "opacity-60": _vm.isDraggableDisabled
+                                      }
+                                    },
+                                    [_vm._v("TEST")]
+                                  )
+                                }),
+                                0
+                              )
+                            ],
+                            1
+                          )
+                        }),
+                        0
                       )
-                    ]
+                    ],
+                    1
                   )
-            ])
-          }),
+                ])
+              ])
+            }),
+            0
+          ),
           _vm._v(" "),
           _c("hr", { staticClass: "mt-5" }),
           _vm._v(" "),
@@ -32201,9 +32479,13 @@ var render = function() {
             ]
           ),
           _vm._v(" "),
-          _c("add-row-and-columns-modal", { attrs: { kanbanData: _vm.kanban } })
+          _c("add-row-and-columns-modal", {
+            attrs: { kanbanData: _vm.kanban }
+          }),
+          _vm._v(" "),
+          _c("add-member-modal", { attrs: { kanbanData: _vm.kanban } })
         ],
-        2
+        1
       )
     : _vm._e()
 }
@@ -53677,6 +53959,38 @@ var ajaxCalls = {
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-row/' + rowId)["catch"](function (error) {
         _this8.triggerErrorToast(error.response.data.message);
+      });
+    },
+    // Kanban Drag Functions
+    asyncUpdateTaskCardIndexes: function asyncUpdateTaskCardIndexes(taskCards) {
+      var _this9 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-card-indexes', taskCards)["catch"](function (error) {
+        _this9.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncUpdateTaskCardRowAndColumnId: function asyncUpdateTaskCardRowAndColumnId(columnId, rowId, taskCardId) {
+      var _this10 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-card-row-and-column/' + columnId + '/' + rowId + '/' + taskCardId)["catch"](function (error) {
+        _this10.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncGetTaskCardsByColumn: function asyncGetTaskCardsByColumn(columnId) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('get-task-cards-by-column/' + columnId);
+    },
+    asyncUpdateColumnIndexes: function asyncUpdateColumnIndexes(columns) {
+      var _this11 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-column-indexes', columns)["catch"](function (error) {
+        _this11.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncUpdateRowIndexes: function asyncUpdateRowIndexes(rows) {
+      var _this12 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-row-indexes', rows)["catch"](function (error) {
+        _this12.triggerErrorToast(error.response.data.message);
       });
     },
     // Triggers
