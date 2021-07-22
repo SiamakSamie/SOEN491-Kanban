@@ -86,4 +86,43 @@ class RowAndColumnsController extends Controller
         $Row = Row::find($id);
         $Row->delete();
     }
+
+
+    public function updateRowIndexes(Request $request)
+    {
+        $rows = $request->all();
+        $newIndex = 0;
+        try {
+            foreach ($rows as $row) {
+                $newIndex++;
+                Row::find($row['id'])->update(['index' => $newIndex]);
+
+            }
+        } catch (\Exception $e) {
+            return response([
+                'success' => 'false',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+        return response(['success' => 'true'], 200);
+    }
+
+    public function updateColumnIndexes(Request $request)
+    {
+        $columns = $request->all();
+        $newIndex = 0;
+        try {
+            foreach ($columns as $column) {
+                $newIndex++;
+                Column::find($column['id'])->update(['index' => $newIndex]);
+            }
+        } catch (\Exception $e) {
+            return response([
+                'success' => 'false',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+        return response(['success' => 'true'], 200);
+    }
+
 }
