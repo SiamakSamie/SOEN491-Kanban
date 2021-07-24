@@ -1,5 +1,8 @@
 <?php
 
+Route::group(['middleware' => ['web']], function () {
+
+
     Route::group(['namespace' => 'SiamakSamie\Kanban\Http\Controllers',], function () {
         Route::group(['prefix' => 'kanban',], function () {
 
@@ -65,3 +68,4 @@
 
         });
     });
+});

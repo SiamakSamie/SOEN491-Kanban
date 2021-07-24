@@ -48,6 +48,7 @@ class TaskController extends Controller
 
         $maxIndex = Task::where('column_id', $taskCard['selectedColumnId'])->max('index');
 
+
         try {
             $maxIndex++;
             $task = Task::create([
@@ -57,20 +58,20 @@ class TaskController extends Controller
                 'description' => $taskCard['taskDescription'],
                 'badge_id' => $badge->id,
                 'column_id' => $taskCard['selectedColumnId'],
+                'row_id' => $taskCard['selectedRowId'],
+
                 'board_id' => $taskCard['boardId'],
                 'priority' => $request->input('priority') !== null ? $taskCard['priority']['name'] : null,
 
             ]);
 
-            if($request->has('assignedTo')){
+            if($request->input('assignedTo') !== null){
                 $employeeArray = [];
                 foreach ($taskCard['assignedTo'] as $employee) {
                     array_push($employeeArray, $employee['id']);
                 }
                 $task->assignedTo()->sync($employeeArray);
             }
-
-
 
         } catch (\Exception $e) {
             return response([

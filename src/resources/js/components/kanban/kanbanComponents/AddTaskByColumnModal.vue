@@ -203,12 +203,12 @@ export default {
                 taskName: null,
                 taskDescription: null,
                 priority: null,
-                badge: {},
                 assignedTo: null,
                 selectedRowIndex: null,
                 selectedColumnIndex: null,
                 selectedColumnId: null,
                 selectedRowName: null,
+                selectedRowId: null,
                 selectedColumnName: null,
                 boardId: null
             },
@@ -261,6 +261,7 @@ export default {
         openModal(taskData) {
             this.taskData.selectedRowIndex = taskData.rowIndex;
             this.taskData.selectedRowName = taskData.rowName;
+            this.taskData.selectedRowId = taskData.rowId;
             this.taskData.selectedColumnId = taskData.columnId;
             this.taskData.selectedColumnIndex = taskData.columnIndex;
             this.taskData.selectedColumnName = taskData.columnName;

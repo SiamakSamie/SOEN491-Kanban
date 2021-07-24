@@ -173,15 +173,18 @@ export default {
 
         createTask(rowIndex, columnIndex) {
             let rowName = this.kanban.rows[rowIndex].name;
+            let rowId = this.kanban.rows[rowIndex].id;
+
             let columnName = this.kanban.rows[rowIndex].columns[columnIndex].name;
             let columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
-            let boardId = this.kanban.id;
 
+            let boardId = this.kanban.id;
 
             this.eventHub.$emit("create-task", {
                 rowIndex,
                 rowName,
                 columnId,
+                rowId,
                 columnIndex,
                 columnName,
                 boardId
@@ -189,14 +192,19 @@ export default {
         },
 
         saveTask(taskData) {
+
+            this.isDraggableDisabled = true;
+
             this.asyncCreateTask(taskData).then((data) => {
 
                 this.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then((data) => {
-                    this.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].task_cards = data.data;
+                    console.log(taskData)
+                    this.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].tasks = data.data;
+                    this.isDraggableDisabled = false
+
                 }).catch(res => {
                     console.log(res)
                 });
-                this.isDraggableDisabled = false
                 this.triggerSuccessToast('task created');
             });
         },

@@ -7703,6 +7703,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     createTask: function createTask(rowIndex, columnIndex) {
       var rowName = this.kanban.rows[rowIndex].name;
+      var rowId = this.kanban.rows[rowIndex].id;
       var columnName = this.kanban.rows[rowIndex].columns[columnIndex].name;
       var columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
       var boardId = this.kanban.id;
@@ -7710,6 +7711,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         rowIndex: rowIndex,
         rowName: rowName,
         columnId: columnId,
+        rowId: rowId,
         columnIndex: columnIndex,
         columnName: columnName,
         boardId: boardId
@@ -7718,14 +7720,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     saveTask: function saveTask(taskData) {
       var _this3 = this;
 
+      this.isDraggableDisabled = true;
       this.asyncCreateTask(taskData).then(function (data) {
         _this3.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then(function (data) {
-          _this3.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].task_cards = data.data;
+          console.log(taskData);
+          _this3.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].tasks = data.data;
+          _this3.isDraggableDisabled = false;
         })["catch"](function (res) {
           console.log(res);
         });
-
-        _this3.isDraggableDisabled = false;
 
         _this3.triggerSuccessToast('task created');
       });
@@ -8494,12 +8497,12 @@ __webpack_require__.r(__webpack_exports__);
         taskName: null,
         taskDescription: null,
         priority: null,
-        badge: {},
         assignedTo: null,
         selectedRowIndex: null,
         selectedColumnIndex: null,
         selectedColumnId: null,
         selectedRowName: null,
+        selectedRowId: null,
         selectedColumnName: null,
         boardId: null
       }
@@ -8551,6 +8554,7 @@ __webpack_require__.r(__webpack_exports__);
     openModal: function openModal(taskData) {
       this.taskData.selectedRowIndex = taskData.rowIndex;
       this.taskData.selectedRowName = taskData.rowName;
+      this.taskData.selectedRowId = taskData.rowId;
       this.taskData.selectedColumnId = taskData.columnId;
       this.taskData.selectedColumnIndex = taskData.columnIndex;
       this.taskData.selectedColumnName = taskData.columnName;
