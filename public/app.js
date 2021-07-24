@@ -7523,6 +7523,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../mixins/ajaxCallsMixin */ "./src/resources/js/mixins/ajaxCallsMixin.js");
 /* harmony import */ var _kanbanComponents_AddMemberModal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./kanbanComponents/AddMemberModal */ "./src/resources/js/components/kanban/kanbanComponents/AddMemberModal.vue");
 /* harmony import */ var _kanbanComponents_AddRowAndColumnsModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./kanbanComponents/AddRowAndColumnsModal */ "./src/resources/js/components/kanban/kanbanComponents/AddRowAndColumnsModal.vue");
+/* harmony import */ var _kanbanComponents_AddTaskByColumnModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./kanbanComponents/AddTaskByColumnModal */ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -7615,6 +7616,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+
 
 
 
@@ -7627,6 +7633,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     'id': Number
   },
   components: {
+    AddTaskByColumnModal: _kanbanComponents_AddTaskByColumnModal__WEBPACK_IMPORTED_MODULE_5__["default"],
     KanbanBar: _kanbanComponents_KanbanBar_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     AddMemberModal: _kanbanComponents_AddMemberModal__WEBPACK_IMPORTED_MODULE_3__["default"],
     AddRowAndColumnsModal: _kanbanComponents_AddRowAndColumnsModal__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -7661,6 +7668,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   created: function created() {
     var _this = this;
 
+    this.eventHub.$on("save-task", function (taskData) {
+      _this.saveTask(taskData);
+    });
     this.eventHub.$on("save-members", function (selectedMembers) {
       _this.saveMember(selectedMembers);
     });
@@ -7675,6 +7685,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   },
   beforeDestroy: function beforeDestroy() {
+    this.eventHub.$off('save-task');
     this.eventHub.$off('save-members');
     this.eventHub.$off('remove-member');
     this.eventHub.$off('save-row-and-columns');
@@ -7690,8 +7701,40 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         console.log(res);
       });
     },
-    saveMember: function saveMember(selectedMembers) {
+    createTask: function createTask(rowIndex, columnIndex) {
+      var rowName = this.kanban.rows[rowIndex].name;
+      var rowId = this.kanban.rows[rowIndex].id;
+      var columnName = this.kanban.rows[rowIndex].columns[columnIndex].name;
+      var columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
+      var boardId = this.kanban.id;
+      this.eventHub.$emit("create-task", {
+        rowIndex: rowIndex,
+        rowName: rowName,
+        columnId: columnId,
+        rowId: rowId,
+        columnIndex: columnIndex,
+        columnName: columnName,
+        boardId: boardId
+      });
+    },
+    saveTask: function saveTask(taskData) {
       var _this3 = this;
+
+      this.isDraggableDisabled = true;
+      this.asyncCreateTask(taskData).then(function (data) {
+        _this3.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then(function (data) {
+          console.log(taskData);
+          _this3.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].tasks = data.data;
+          _this3.isDraggableDisabled = false;
+        })["catch"](function (res) {
+          console.log(res);
+        });
+
+        _this3.triggerSuccessToast('task created');
+      });
+    },
+    saveMember: function saveMember(selectedMembers) {
+      var _this4 = this;
 
       this.loadingMembers = {
         memberId: null,
@@ -7701,14 +7744,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var cloneSelectedMembers = _objectSpread({}, selectedMembers);
 
       this.asyncAddMembers(cloneSelectedMembers, this.kanban.id).then(function () {
-        _this3.asyncGetMembers(_this3.kanban.id).then(function (data) {
-          _this3.kanban.members = data.data;
-          _this3.loadingMembers = {
+        _this4.asyncGetMembers(_this4.kanban.id).then(function (data) {
+          _this4.kanban.members = data.data;
+          _this4.loadingMembers = {
             memberId: null,
             isLoading: false
           };
 
-          _this3.triggerSuccessToast('New kanban members saved');
+          _this4.triggerSuccessToast('New kanban members saved');
         })["catch"](function (res) {
           console.log(res);
         });
@@ -7717,22 +7760,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     },
     deleteMember: function deleteMember(member) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.asyncDeleteMember(member.id).then(function () {
-        _this4.loadingMembers = {
+        _this5.loadingMembers = {
           memberId: member.id,
           isLoading: true
         };
 
-        _this4.asyncGetMembers(_this4.kanban.id).then(function (data) {
-          _this4.kanban.members = data.data;
-          _this4.loadingMembers = {
+        _this5.asyncGetMembers(_this5.kanban.id).then(function (data) {
+          _this5.kanban.members = data.data;
+          _this5.loadingMembers = {
             memberId: null,
             isLoading: false
           };
 
-          _this4.triggerSuccessToast('Kanban member deleted');
+          _this5.triggerSuccessToast('Kanban member deleted');
         })["catch"](function (res) {
           console.log(res);
         });
@@ -7752,7 +7795,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     },
     saveRowAndColumns: function saveRowAndColumns(rowData) {
-      var _this5 = this;
+      var _this6 = this;
 
       var cloneRowData = _objectSpread({}, rowData);
 
@@ -7763,12 +7806,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       };
       this.asyncCreateRowAndColumns(cloneRowData).then(function (data) {
         if (cloneRowData.rowId !== null) {
-          _this5.kanban.rows[rowIndex] = data.data[0];
+          _this6.kanban.rows[rowIndex] = data.data[0];
         } else {
-          _this5.kanban.rows.push(data.data[0]);
+          _this6.kanban.rows.push(data.data[0]);
         }
 
-        _this5.loadingRow = {
+        _this6.loadingRow = {
           rowId: null,
           isLoading: false
         };
@@ -7777,19 +7820,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     },
     deleteRow: function deleteRow(rowData) {
-      var _this6 = this;
+      var _this7 = this;
 
       this.asyncDeleteRow(rowData.id).then(function () {
-        _this6.triggerSuccessToast('Row Deleted');
+        _this7.triggerSuccessToast('Row Deleted');
 
-        _this6.getKanban(_this6.kanban.id);
+        _this7.getKanban(_this7.kanban.id);
       })["catch"](function (res) {
         console.log(res);
       });
     },
     // Whenever a user drags a card
     getTaskChangeData: function getTaskChangeData(event, columnIndex, rowIndex) {
-      var _this7 = this;
+      var _this8 = this;
 
       var eventName = Object.keys(event)[0];
       var taskCardData = this.kanban.rows[rowIndex].columns[columnIndex].task_cards;
@@ -7800,31 +7843,31 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       switch (eventName) {
         case "moved":
           this.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
-            _this7.isDraggableDisabled = false;
+            _this8.isDraggableDisabled = false;
 
-            _this7.triggerSuccessToast('task moved');
+            _this8.triggerSuccessToast('task moved');
           });
           break;
 
         case "added":
           this.asyncUpdateTaskCardRowAndColumnId(columnId, rowId, event.added.element.id).then(function () {
-            _this7.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
-              _this7.asyncGetTaskCardsByColumn(columnId).then(function (data) {
-                _this7.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
+            _this8.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
+              _this8.asyncGetTaskCardsByColumn(columnId).then(function (data) {
+                _this8.kanban.rows[rowIndex].columns[columnIndex].task_cards = data.data;
               })["catch"](function (res) {
                 console.log(res);
               });
 
-              _this7.isDraggableDisabled = false;
+              _this8.isDraggableDisabled = false;
 
-              _this7.triggerSuccessToast('task moved');
+              _this8.triggerSuccessToast('task moved');
             });
           });
           break;
 
         case "removed":
           this.asyncUpdateTaskCardsIndexes(taskCardData).then(function () {
-            _this7.isDraggableDisabled = false;
+            _this8.isDraggableDisabled = false;
           });
           break;
 
@@ -7834,33 +7877,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     // Whenever a user drags a column
     getColumnChangeData: function getColumnChangeData(event, rowIndex) {
-      var _this8 = this;
+      var _this9 = this;
 
       if (event.oldIndex !== event.newIndex) {
         console.log('column');
         var columns = this.kanban.rows[rowIndex].columns;
         this.isDraggableDisabled = true;
         this.asyncUpdateColumnIndexes(columns).then(function () {
-          _this8.isDraggableDisabled = false;
+          _this9.isDraggableDisabled = false;
 
-          _this8.getKanban(_this8.kanban.id);
+          _this9.getKanban(_this9.kanban.id);
 
-          _this8.triggerSuccessToast('Column position updated');
+          _this9.triggerSuccessToast('Column position updated');
         });
       }
     },
     // Whenever a user drags a row
     getRowChangeData: function getRowChangeData(event) {
-      var _this9 = this;
+      var _this10 = this;
 
       if (event.oldIndex !== event.newIndex) {
         this.isDraggableDisabled = true;
         this.asyncUpdateRowIndexes(this.kanban.rows).then(function () {
-          _this9.isDraggableDisabled = false;
+          _this10.isDraggableDisabled = false;
 
-          _this9.getKanban(_this9.kanban.id);
+          _this10.getKanban(_this10.kanban.id);
 
-          _this9.triggerSuccessToast('Row position updated');
+          _this10.triggerSuccessToast('Row position updated');
         });
       }
     }
@@ -8239,6 +8282,284 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.eventHub.$emit("delete-row", this.rowData);
       this.modalOpen = false;
       this.rowData.rowIndex = null;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global/Avatar.vue */ "./src/resources/js/components/global/Avatar.vue");
+/* harmony import */ var _mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../mixins/ajaxCallsMixin */ "./src/resources/js/mixins/ajaxCallsMixin.js");
+/* harmony import */ var _mixins_helperFunctionsMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../mixins/helperFunctionsMixin */ "./src/resources/js/mixins/helperFunctionsMixin.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  inject: ["eventHub"],
+  components: {
+    vSelect: vue_select__WEBPACK_IMPORTED_MODULE_0___default.a,
+    Avatar: _global_Avatar_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  mixins: [_mixins_ajaxCallsMixin__WEBPACK_IMPORTED_MODULE_2__["ajaxCalls"], _mixins_helperFunctionsMixin__WEBPACK_IMPORTED_MODULE_3__["helperFunctions"]],
+  props: {
+    kanbanData: Object
+  },
+  data: function data() {
+    return {
+      modalOpen: false,
+      isSavingTask: false,
+      badges: [],
+      priorityOptions: [{
+        name: "High",
+        icon: "fa-arrow-up",
+        color: "red"
+      }, {
+        name: "Medium",
+        icon: "fa-arrow-up",
+        color: "yellow"
+      }, {
+        name: "Low",
+        icon: "fa-arrow-down",
+        color: "green"
+      }, {
+        name: "None",
+        icon: "fa-circle",
+        color: "gray"
+      }],
+      taskData: {
+        taskName: null,
+        taskDescription: null,
+        priority: null,
+        assignedTo: null,
+        selectedRowIndex: null,
+        selectedColumnIndex: null,
+        selectedColumnId: null,
+        selectedRowName: null,
+        selectedRowId: null,
+        selectedColumnName: null,
+        boardId: null
+      }
+    };
+  },
+  mounted: function mounted() {},
+  created: function created() {
+    var _this = this;
+
+    this.eventHub.$on("create-task", function (taskData) {
+      _this.openModal(taskData);
+
+      console.log(taskData);
+    });
+    this.getBadges();
+  },
+  computed: {
+    computedBadges: function computedBadges() {
+      var _this2 = this;
+
+      return this.badges.map(function (badge) {
+        var computedBadges = {};
+        computedBadges.name = badge.name;
+        computedBadges.hue = _this2.generateHslColorWithText(badge.name);
+        return computedBadges;
+      });
+    }
+  },
+  methods: {
+    saveTask: function saveTask(event) {
+      event.target.disabled = true;
+      this.eventHub.$emit("save-task", this.taskData);
+      this.modalOpen = false;
+      this.taskData = {
+        taskName: null,
+        taskDescription: null,
+        priority: null
+      };
+    },
+    getBadges: function getBadges() {
+      var _this3 = this;
+
+      this.asyncGetBadges().then(function (data) {
+        _this3.badges = data.data;
+      })["catch"](function (res) {
+        console.log(res);
+      });
+    },
+    openModal: function openModal(taskData) {
+      this.taskData.selectedRowIndex = taskData.rowIndex;
+      this.taskData.selectedRowName = taskData.rowName;
+      this.taskData.selectedRowId = taskData.rowId;
+      this.taskData.selectedColumnId = taskData.columnId;
+      this.taskData.selectedColumnIndex = taskData.columnIndex;
+      this.taskData.selectedColumnName = taskData.columnName;
+      this.taskData.boardId = taskData.boardId;
+      this.modalOpen = true;
     }
   }
 });
@@ -32391,7 +32712,15 @@ var render = function() {
                                       "button",
                                       {
                                         staticClass:
-                                          "w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none"
+                                          "w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none",
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.createTask(
+                                              rowIndex,
+                                              columnIndex
+                                            )
+                                          }
+                                        }
                                       },
                                       [
                                         _c("i", {
@@ -32432,7 +32761,11 @@ var render = function() {
                                         "opacity-60": _vm.isDraggableDisabled
                                       }
                                     },
-                                    [_vm._v("TEST")]
+                                    [
+                                      _vm._v(
+                                        "TEST\n                                "
+                                      )
+                                    ]
                                   )
                                 }),
                                 0
@@ -32483,7 +32816,9 @@ var render = function() {
             attrs: { kanbanData: _vm.kanban }
           }),
           _vm._v(" "),
-          _c("add-member-modal", { attrs: { kanbanData: _vm.kanban } })
+          _c("add-member-modal", { attrs: { kanbanData: _vm.kanban } }),
+          _vm._v(" "),
+          _c("add-task-by-column-modal", { attrs: { kanbanData: _vm.kanban } })
         ],
         1
       )
@@ -33326,6 +33661,556 @@ var render = function() {
                             : _vm._e()
                         ],
                         2
+                      )
+                    ]
+                  )
+                ]
+              )
+            : _vm._e()
+        ]
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa&":
+/*!***************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa& ***!
+  \***************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c(
+        "transition",
+        {
+          attrs: {
+            "enter-active-class": "transition duration-500 ease-out transform",
+            "enter-class": " opacity-0 bg-blue-200",
+            "leave-active-class": "transition duration-300 ease-in transform",
+            "leave-to-class": "opacity-0 bg-blue-200"
+          }
+        },
+        [
+          _vm.modalOpen
+            ? _c("div", {
+                staticClass:
+                  "overflow-auto fixed inset-0 bg-gray-700 bg-opacity-50 z-30"
+              })
+            : _vm._e()
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "transition",
+        {
+          attrs: {
+            "enter-active-class": "transition duration-300 ease-out transform ",
+            "enter-class": "scale-95 opacity-0 -translate-y-10",
+            "enter-to-class": "scale-100 opacity-100",
+            "leave-active-class": "transition duration-150 ease-in transform",
+            "leave-class": "scale-100 opacity-100",
+            "leave-to-class": "scale-95 opacity-0"
+          }
+        },
+        [
+          _vm.modalOpen
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "fixed inset-0 z-40 flex items-start justify-center"
+                },
+                [
+                  _c("div", {
+                    staticClass: "overflow-auto fixed h-full w-full",
+                    on: {
+                      click: function($event) {
+                        _vm.modalOpen = false
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "flex flex-col overflow-auto z-50 w-100 bg-white rounded-md shadow-2xl m-10",
+                      staticStyle: {
+                        width: "700px",
+                        "min-height": "300px",
+                        "max-height": "80%"
+                      }
+                    },
+                    [
+                      _c(
+                        "div",
+                        {
+                          staticClass:
+                            "flex justify-between p-5 bg-indigo-800 border-b"
+                        },
+                        [
+                          _c("div", { staticClass: "space-y-1" }, [
+                            _c(
+                              "h1",
+                              { staticClass: "text-2xl text-white pb-2" },
+                              [_vm._v("Create new task")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "p",
+                              {
+                                staticClass:
+                                  "text-sm font-medium leading-5 text-gray-500"
+                              },
+                              [
+                                _c("em", [
+                                  _vm._v(
+                                    "\n                                Adding a new task to row\n                                "
+                                  ),
+                                  _c("b", [
+                                    _vm._v(
+                                      "'" +
+                                        _vm._s(_vm.taskData.selectedRowName) +
+                                        "'"
+                                    )
+                                  ]),
+                                  _vm._v(
+                                    "\n                                in column\n                                "
+                                  ),
+                                  _c("b", [
+                                    _vm._v(
+                                      "'" +
+                                        _vm._s(
+                                          _vm.taskData.selectedColumnName
+                                        ) +
+                                        "'"
+                                    )
+                                  ])
+                                ])
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", [
+                            _c(
+                              "button",
+                              {
+                                staticClass:
+                                  "focus:outline-none flex flex-col items-center text-gray-400 hover:text-gray-500 transition duration-150 ease-in-out pl-8",
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.modalOpen = false
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", { staticClass: "fas fa-times" }),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass:
+                                      "text-xs font-semibold text-center leading-3 uppercase"
+                                  },
+                                  [_vm._v("Esc")]
+                                )
+                              ]
+                            )
+                          ])
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "form",
+                        { staticClass: "space-y-6 overflow-auto px-8 py-6" },
+                        [
+                          _c("div", { staticClass: "space-y-6" }, [
+                            _c("div", { staticClass: "space-y-4" }, [
+                              _c("label", { staticClass: "block space-y-2" }, [
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass:
+                                      "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                  },
+                                  [_vm._v("Task Name")]
+                                ),
+                                _vm._v(" "),
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.taskData.taskName,
+                                      expression: "taskData.taskName"
+                                    }
+                                  ],
+                                  staticClass:
+                                    "px-3 py-3 placeholder-gray-400 text-gray-700 rounded border border-gray-400 w-full pr-10 outline-none text-md leading-4",
+                                  attrs: { type: "text", placeholder: "Task" },
+                                  domProps: { value: _vm.taskData.taskName },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        _vm.taskData,
+                                        "taskName",
+                                        $event.target.value
+                                      )
+                                    }
+                                  }
+                                })
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "flex-1" },
+                              [
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass:
+                                      "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                  },
+                                  [_vm._v("Assign To")]
+                                ),
+                                _vm._v(" "),
+                                _c("vSelect", {
+                                  staticClass: "text-gray-700",
+                                  staticStyle: { "margin-top": "7px" },
+                                  attrs: {
+                                    multiple: "",
+                                    options: _vm.kanbanData.members,
+                                    getOptionLabel: function(opt) {
+                                      return opt.employee.user.name
+                                    }
+                                  },
+                                  scopedSlots: _vm._u(
+                                    [
+                                      {
+                                        key: "option",
+                                        fn: function(option) {
+                                          return [
+                                            _c("avatar", {
+                                              staticClass:
+                                                "mr-3 m-1 float-left",
+                                              attrs: {
+                                                name: option.employee.user.name,
+                                                size: 4
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("p", { staticClass: "inline" }, [
+                                              _vm._v(
+                                                _vm._s(
+                                                  option.employee.user.name
+                                                ) + '"'
+                                              )
+                                            ])
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        key: "no-options",
+                                        fn: function(ref) {
+                                          var search = ref.search
+                                          var searching = ref.searching
+                                          var loading = ref.loading
+                                          return [
+                                            _vm._v(
+                                              "\n                                    No result .\n                                "
+                                            )
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    null,
+                                    false,
+                                    851229117
+                                  ),
+                                  model: {
+                                    value: _vm.taskData.assignedTo,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.taskData, "assignedTo", $$v)
+                                    },
+                                    expression: "taskData.assignedTo"
+                                  }
+                                })
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "flex" }, [
+                              _c(
+                                "div",
+                                { staticClass: "flex-1 pr-3" },
+                                [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass:
+                                        "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                    },
+                                    [_vm._v("Priority")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("vSelect", {
+                                    staticClass: "text-gray-700",
+                                    staticStyle: { "margin-top": "7px" },
+                                    attrs: {
+                                      options: _vm.priorityOptions,
+                                      label: "name"
+                                    },
+                                    scopedSlots: _vm._u(
+                                      [
+                                        {
+                                          key: "option",
+                                          fn: function(option) {
+                                            return [
+                                              _c("span", {
+                                                staticClass: "fa mr-4",
+                                                class: [
+                                                  option.icon,
+                                                  "text-" +
+                                                    option.color +
+                                                    "-400 "
+                                                ]
+                                              }),
+                                              _vm._v(
+                                                "\n                                        " +
+                                                  _vm._s(option.name) +
+                                                  "\n                                    "
+                                              )
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          key: "no-options",
+                                          fn: function(ref) {
+                                            var search = ref.search
+                                            var searching = ref.searching
+                                            var loading = ref.loading
+                                            return [
+                                              _vm._v(
+                                                "\n                                        No result .\n                                    "
+                                              )
+                                            ]
+                                          }
+                                        }
+                                      ],
+                                      null,
+                                      false,
+                                      2277571649
+                                    ),
+                                    model: {
+                                      value: _vm.taskData.priority,
+                                      callback: function($$v) {
+                                        _vm.$set(_vm.taskData, "priority", $$v)
+                                      },
+                                      expression: "taskData.priority"
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                { staticClass: "flex-1" },
+                                [
+                                  _c(
+                                    "span",
+                                    {
+                                      staticClass:
+                                        "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                    },
+                                    [_vm._v("Badge")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "vSelect",
+                                    {
+                                      staticStyle: { "margin-top": "7px" },
+                                      attrs: {
+                                        options: _vm.computedBadges,
+                                        label: "name",
+                                        placeholder: "Choose or Create",
+                                        taggable: "",
+                                        "create-option": function(option) {
+                                          return { name: option.toLowerCase() }
+                                        }
+                                      },
+                                      scopedSlots: _vm._u(
+                                        [
+                                          {
+                                            key: "option",
+                                            fn: function(option) {
+                                              return [
+                                                _c("span", {
+                                                  staticClass:
+                                                    "fa fa-circle mr-4",
+                                                  style:
+                                                    "color: hsl(" +
+                                                    option.hue +
+                                                    ", 50%, 45%);"
+                                                }),
+                                                _vm._v(
+                                                  "\n                                        " +
+                                                    _vm._s(option.name) +
+                                                    "\n                                    "
+                                                )
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            key: "no-options",
+                                            fn: function(ref) {
+                                              var search = ref.search
+                                              var searching = ref.searching
+                                              var loading = ref.loading
+                                              return [
+                                                _vm._v(
+                                                  "\n                                        No result .\n                                    "
+                                                )
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        null,
+                                        false,
+                                        1039231855
+                                      ),
+                                      model: {
+                                        value: _vm.taskData.badge,
+                                        callback: function($$v) {
+                                          _vm.$set(_vm.taskData, "badge", $$v)
+                                        },
+                                        expression: "taskData.badge"
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        '\n                                    class="text-gray-700">\n                                    '
+                                      )
+                                    ]
+                                  )
+                                ],
+                                1
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "space-y-4" }, [
+                            _c("label", { staticClass: "block space-y-2" }, [
+                              _c(
+                                "span",
+                                {
+                                  staticClass:
+                                    "block text-xs font-bold leading-4 tracking-wide uppercase text-gray-600"
+                                },
+                                [_vm._v("Task Description")]
+                              ),
+                              _vm._v(" "),
+                              _c("textarea", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.taskData.taskDescription,
+                                    expression: "taskData.taskDescription"
+                                  }
+                                ],
+                                staticClass:
+                                  "h-20 px-3 py-3 placeholder-gray-400 text-gray-700 rounded border border-gray-400 w-full pr-10 outline-none text-md leading-4",
+                                attrs: { placeholder: "Details" },
+                                domProps: {
+                                  value: _vm.taskData.taskDescription
+                                },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.$set(
+                                      _vm.taskData,
+                                      "taskDescription",
+                                      $event.target.value
+                                    )
+                                  }
+                                }
+                              })
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass:
+                                "w-full grid sm:grid-cols-2 gap-3 sm:gap-3"
+                            },
+                            [
+                              _c(
+                                "button",
+                                {
+                                  staticClass:
+                                    "px-4 py-3 border border-gray-200 rounded text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-600 transition duration-300 ease-in-out",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.modalOpen = false
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            Cancel\n                        "
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass:
+                                    "px-4 py-3 border border-transparent rounded text-white bg-indigo-600 hover:bg-indigo-500 transition duration-300 ease-in-out",
+                                  attrs: { type: "button" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.saveTask($event)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            Save Task\n                        "
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
                       )
                     ]
                   )
@@ -53783,6 +54668,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue":
+/*!**************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue ***!
+  \**************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AddTaskByColumnModal.vue?vue&type=template&id=31d734fa& */ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa&");
+/* harmony import */ var _AddTaskByColumnModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AddTaskByColumnModal.vue?vue&type=script&lang=js& */ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _AddTaskByColumnModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_AddTaskByColumnModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./AddTaskByColumnModal.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_AddTaskByColumnModal_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa&":
+/*!*********************************************************************************************************************!*\
+  !*** ./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa& ***!
+  \*********************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./AddTaskByColumnModal.vue?vue&type=template&id=31d734fa& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/resources/js/components/kanban/kanbanComponents/AddTaskByColumnModal.vue?vue&type=template&id=31d734fa&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_AddTaskByColumnModal_vue_vue_type_template_id_31d734fa___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue":
 /*!***************************************************************************!*\
   !*** ./src/resources/js/components/kanban/kanbanComponents/KanbanBar.vue ***!
@@ -53896,23 +54850,31 @@ var ajaxCalls = {
         _this2.triggerErrorToast(error.response.data.message);
       });
     },
-    // Employees
-    asyncCreateKanbanEmployee: function asyncCreateKanbanEmployee(employeeData) {
+    // Tasks
+    asyncCreateTask: function asyncCreateTask(taskCardData) {
       var _this3 = this;
 
-      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-kanban-employees', employeeData).then(function () {
-        _this3.triggerSuccessToast("Employee Added!");
-      })["catch"](function (error) {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-task', taskCardData)["catch"](function (error) {
         _this3.triggerErrorToast(error.response.data.message);
       });
     },
-    asyncDeleteKanbanEmployee: function asyncDeleteKanbanEmployee(employeeId) {
+    // Employees
+    asyncCreateKanbanEmployee: function asyncCreateKanbanEmployee(employeeData) {
       var _this4 = this;
 
-      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-kanban-employee/' + employeeId).then(function () {
-        _this4.triggerSuccessToast("Employee Removed");
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-kanban-employees', employeeData).then(function () {
+        _this4.triggerSuccessToast("Employee Added!");
       })["catch"](function (error) {
         _this4.triggerErrorToast(error.response.data.message);
+      });
+    },
+    asyncDeleteKanbanEmployee: function asyncDeleteKanbanEmployee(employeeId) {
+      var _this5 = this;
+
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-kanban-employee/' + employeeId).then(function () {
+        _this5.triggerSuccessToast("Employee Removed");
+      })["catch"](function (error) {
+        _this5.triggerErrorToast(error.response.data.message);
       });
     },
     asyncGetKanbanEmployees: function asyncGetKanbanEmployees() {
@@ -53933,65 +54895,69 @@ var ajaxCalls = {
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-members/' + boardId);
     },
     asyncAddMembers: function asyncAddMembers(memberData, boardId) {
-      var _this5 = this;
+      var _this6 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('create-members/' + boardId, memberData)["catch"](function (error) {
-        _this5.triggerErrorToast(error.response.data.message);
+        _this6.triggerErrorToast(error.response.data.message);
       });
     },
     asyncDeleteMember: function asyncDeleteMember(memberId) {
-      var _this6 = this;
+      var _this7 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-member/' + memberId)["catch"](function (error) {
-        _this6.triggerErrorToast(error.response.data.message);
+        _this7.triggerErrorToast(error.response.data.message);
       });
     },
     // Row and Columns
     asyncCreateRowAndColumns: function asyncCreateRowAndColumns(rowData) {
-      var _this7 = this;
+      var _this8 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('save-row-and-columns', rowData)["catch"](function (error) {
-        _this7.triggerErrorToast(error.response.data.message);
+        _this8.triggerErrorToast(error.response.data.message);
       });
     },
     asyncDeleteRow: function asyncDeleteRow(rowId) {
-      var _this8 = this;
+      var _this9 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('delete-row/' + rowId)["catch"](function (error) {
-        _this8.triggerErrorToast(error.response.data.message);
+        _this9.triggerErrorToast(error.response.data.message);
       });
     },
     // Kanban Drag Functions
     asyncUpdateTaskCardsIndexes: function asyncUpdateTaskCardsIndexes(taskCards) {
-      var _this9 = this;
+      var _this10 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-cards-indexes', taskCards)["catch"](function (error) {
-        _this9.triggerErrorToast(error.response.data.message);
+        _this10.triggerErrorToast(error.response.data.message);
       });
     },
     asyncUpdateTaskCardRowAndColumnId: function asyncUpdateTaskCardRowAndColumnId(columnId, rowId, taskCardId) {
-      var _this10 = this;
+      var _this11 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-task-card-row-and-column/' + columnId + '/' + rowId + '/' + taskCardId)["catch"](function (error) {
-        _this10.triggerErrorToast(error.response.data.message);
+        _this11.triggerErrorToast(error.response.data.message);
       });
     },
     asyncGetTaskCardsByColumn: function asyncGetTaskCardsByColumn(columnId) {
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('get-task-cards-by-column/' + columnId);
     },
     asyncUpdateColumnIndexes: function asyncUpdateColumnIndexes(columns) {
-      var _this11 = this;
+      var _this12 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-column-indexes', columns)["catch"](function (error) {
-        _this11.triggerErrorToast(error.response.data.message);
+        _this12.triggerErrorToast(error.response.data.message);
       });
     },
     asyncUpdateRowIndexes: function asyncUpdateRowIndexes(rows) {
-      var _this12 = this;
+      var _this13 = this;
 
       return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('update-row-indexes', rows)["catch"](function (error) {
-        _this12.triggerErrorToast(error.response.data.message);
+        _this13.triggerErrorToast(error.response.data.message);
       });
+    },
+    // Badges
+    asyncGetBadges: function asyncGetBadges() {
+      return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('get-all-badges');
     },
     // Triggers
     triggerSuccessToast: function triggerSuccessToast(message) {
@@ -54069,6 +55035,15 @@ var helperFunctions = {
 
       var c = (hash & 0x00ffffff).toString(16).toUpperCase();
       return "00000".substring(0, 6 - c.length) + c;
+    },
+    generateHslColorWithText: function generateHslColorWithText(input) {
+      var hue = 0;
+
+      for (var i = 0; i < input.length; i++) {
+        hue += input.charCodeAt(i);
+      }
+
+      return hue % 360;
     }
   }
 };

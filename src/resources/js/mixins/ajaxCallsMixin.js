@@ -36,6 +36,14 @@ export const ajaxCalls = {
             });
         },
 
+        // Tasks
+
+        asyncCreateTask(taskCardData) {
+            return axios.post('create-task', taskCardData).catch((error) => {
+                this.triggerErrorToast(error.response.data.message);
+            });
+        },
+
         // Employees
 
         asyncCreateKanbanEmployee(employeeData) {
@@ -130,6 +138,12 @@ export const ajaxCalls = {
             return axios.post('update-row-indexes', rows).catch((error) => {
                 this.triggerErrorToast(error.response.data.message);
             });
+        },
+
+        // Badges
+
+        asyncGetBadges() {
+            return axios.get('get-all-badges');
         },
 
         // Triggers

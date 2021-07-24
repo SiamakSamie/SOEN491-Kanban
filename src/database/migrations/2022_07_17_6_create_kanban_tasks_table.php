@@ -24,6 +24,7 @@ class CreateKanbanTasksTable extends Migration
             $table->unsignedBigInteger('board_id')->nullable();
             $table->unsignedBigInteger('badge_id')->nullable();
             $table->string('status')->default('active');
+            $table->string('priority')->nullable();
             $table->timestamps();
             $table->foreign('column_id')->references('id')->on('kanban_columns')->onDelete('cascade');
             $table->foreign('board_id')->references('id')->on('kanban_boards')->onDelete('cascade');

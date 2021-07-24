@@ -1,5 +1,8 @@
 <?php
 
+Route::group(['middleware' => ['web']], function () {
+
+
     Route::group(['namespace' => 'SiamakSamie\Kanban\Http\Controllers',], function () {
         Route::group(['prefix' => 'kanban',], function () {
 
@@ -18,6 +21,10 @@
 
             Route::get('/get-dashboard-data', 'KanbanController@getDashboardData');
             Route::get('/get-board-data/{id}', 'KanbanController@getkanbanData');
+
+            // Task
+
+            Route::post('/create-task', 'TaskController@createTaskCard');
 
 
             // Board
@@ -47,6 +54,9 @@
             Route::post('/save-row-and-columns', 'RowAndColumnsController@createOrUpdateRowAndColumns');
             Route::post('/delete-row/{id}', 'RowAndColumnsController@deleteRow');
 
+            // Badges
+            Route::get('/get-all-badges', 'BadgeController@getAllBadges');
+
             // Kanban Drag Calls
 
             Route::post('/get-task-cards-by-column/{id}', 'TaskController@getTaskCardsByColumn');
@@ -58,3 +68,4 @@
 
         });
     });
+});
