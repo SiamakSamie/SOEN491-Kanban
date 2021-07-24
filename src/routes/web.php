@@ -19,6 +19,10 @@
             Route::get('/get-dashboard-data', 'KanbanController@getDashboardData');
             Route::get('/get-board-data/{id}', 'KanbanController@getkanbanData');
 
+            // Task
+
+            Route::post('/create-task', 'TaskController@createTaskCard');
+
 
             // Board
 
@@ -46,6 +50,9 @@
             // Columns
             Route::post('/save-row-and-columns', 'RowAndColumnsController@createOrUpdateRowAndColumns');
             Route::post('/delete-row/{id}', 'RowAndColumnsController@deleteRow');
+
+            // Badges
+            Route::get('/get-all-badges', 'BadgeController@getAllBadges');
 
             // Kanban Drag Calls
 

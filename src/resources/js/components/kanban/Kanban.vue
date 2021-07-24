@@ -49,7 +49,8 @@
                                     <p class="flex-auto text-gray-700 font-semibold font-sans tracking-wide pt-1">
                                         {{ column.name }} </p>
 
-                                    <button class="w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none">
+                                    <button @click="createTask(rowIndex, columnIndex)"
+                                            class="w-6 h-6 bg-blue-200 rounded-full hover:bg-blue-300 mouse transition ease-in duration-200 focus:outline-none">
                                         <i class="fas fa-plus text-white"></i>
                                     </button>
                                 </div>
@@ -60,9 +61,10 @@
                                            class="h-full list-group"
                                            group="tasks">
                                     <div :class="{'opacity-60':isDraggableDisabled}"
-                                               :key="task.id"
-                                               class="mt-3 cursor-move bg-red-500 p-5"
-                                               v-for="task in column.tasks">TEST</div>
+                                         :key="task.id"
+                                         class="mt-3 cursor-move bg-red-500 p-5"
+                                         v-for="task in column.tasks">TEST
+                                    </div>
                                 </draggable>
                             </div>
                         </draggable>
@@ -81,6 +83,8 @@
 
         <add-row-and-columns-modal :kanbanData="kanban"></add-row-and-columns-modal>
         <add-member-modal :kanbanData="kanban"></add-member-modal>
+        <add-task-by-column-modal :kanbanData="kanban"></add-task-by-column-modal>
+
     </div>
 </template>
 
@@ -92,6 +96,7 @@ import KanbanBar from "./kanbanComponents/KanbanBar.vue";
 import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import AddMemberModal from "./kanbanComponents/AddMemberModal";
 import AddRowAndColumnsModal from "./kanbanComponents/AddRowAndColumnsModal";
+import AddTaskByColumnModal from "./kanbanComponents/AddTaskByColumnModal";
 
 export default {
 
@@ -102,6 +107,7 @@ export default {
     props: {'id': Number},
 
     components: {
+        AddTaskByColumnModal,
         KanbanBar,
         AddMemberModal,
         AddRowAndColumnsModal,
@@ -129,6 +135,9 @@ export default {
     },
 
     created() {
+        this.eventHub.$on("save-task", (taskData) => {
+            this.saveTask(taskData);
+        });
         this.eventHub.$on("save-members", (selectedMembers) => {
             this.saveMember(selectedMembers);
         });
@@ -145,6 +154,7 @@ export default {
     },
 
     beforeDestroy() {
+        this.eventHub.$off('save-task');
         this.eventHub.$off('save-members');
         this.eventHub.$off('remove-member');
         this.eventHub.$off('save-row-and-columns');
@@ -158,6 +168,36 @@ export default {
                 console.log(this.kanban);
             }).catch(res => {
                 console.log(res)
+            });
+        },
+
+        createTask(rowIndex, columnIndex) {
+            let rowName = this.kanban.rows[rowIndex].name;
+            let columnName = this.kanban.rows[rowIndex].columns[columnIndex].name;
+            let columnId = this.kanban.rows[rowIndex].columns[columnIndex].id;
+            let boardId = this.kanban.id;
+
+
+            this.eventHub.$emit("create-task", {
+                rowIndex,
+                rowName,
+                columnId,
+                columnIndex,
+                columnName,
+                boardId
+            });
+        },
+
+        saveTask(taskData) {
+            this.asyncCreateTask(taskData).then((data) => {
+
+                this.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then((data) => {
+                    this.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].task_cards = data.data;
+                }).catch(res => {
+                    console.log(res)
+                });
+                this.isDraggableDisabled = false
+                this.triggerSuccessToast('task created');
             });
         },
 
