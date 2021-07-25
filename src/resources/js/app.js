@@ -4,6 +4,8 @@ import router from "./router";
 import 'vue-select/dist/vue-select.css';
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import VueMoment from 'vue-moment';
+
 
 import "@fortawesome/fontawesome-free/js/all.js";
 
@@ -14,6 +16,8 @@ Vue.use(Toast, {
     maxToasts: 20,
     newestOnTop: true
 });
+
+Vue.use(VueMoment);
 
 new Vue({
     router,

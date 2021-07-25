@@ -202,7 +202,7 @@ export default {
             taskData: {
                 taskName: null,
                 taskDescription: null,
-                priority: null,
+                priority: 'None',
                 assignedTo: null,
                 selectedRowIndex: null,
                 selectedColumnIndex: null,
@@ -246,7 +246,7 @@ export default {
             this.taskData = {
                 taskName: null,
                 taskDescription: null,
-                priority: null,
+                priority: 'None',
             };
         },
 
