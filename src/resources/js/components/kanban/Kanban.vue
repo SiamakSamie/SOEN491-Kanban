@@ -60,11 +60,14 @@
                                            @change="getTaskChangeData($event, columnIndex, rowIndex)"
                                            class="h-full list-group"
                                            group="tasks">
-                                    <div :class="{'opacity-60':isDraggableDisabled}"
-                                         :key="task.id"
-                                         class="mt-3 cursor-move bg-red-500 p-5"
-                                         v-for="task in column.tasks">TEST
-                                    </div>
+
+                                    <task-card :class="{'opacity-60':isDraggableDisabled}"
+                                        v-for="task in column.tasks"
+                                        :key="task.id"
+                                        :task="task"
+                                        class="mt-3 cursor-move"
+                                    ></task-card>
+
                                 </draggable>
                             </div>
                         </draggable>
@@ -97,6 +100,7 @@ import {ajaxCalls} from "../../mixins/ajaxCallsMixin";
 import AddMemberModal from "./kanbanComponents/AddMemberModal";
 import AddRowAndColumnsModal from "./kanbanComponents/AddRowAndColumnsModal";
 import AddTaskByColumnModal from "./kanbanComponents/AddTaskByColumnModal";
+import TaskCard from "./kanbanComponents/TaskCard";
 
 export default {
 
@@ -111,6 +115,7 @@ export default {
         KanbanBar,
         AddMemberModal,
         AddRowAndColumnsModal,
+        TaskCard,
         draggable,
     },
 
