@@ -101,7 +101,7 @@ class SystemTest extends TestCase
             'boardId' => 1,
             'priority' => null,
             'badge' => ['name' => 'test badge'],
-            'assignedTo' => [['id' => '1'], ['id' => '2']]
+            'assignedTo' => [['employee_id' => '1'], ['employee_id' => '2']]
         ]);
 
         $this->assertDatabaseHas('kanban_tasks', ['name' => 'test task']);

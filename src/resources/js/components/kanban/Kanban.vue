@@ -199,9 +199,7 @@ export default {
         saveTask(taskData) {
 
             this.isDraggableDisabled = true;
-
             this.asyncCreateTask(taskData).then((data) => {
-
                 this.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then((data) => {
                     console.log(taskData)
                     this.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].tasks = data.data;
