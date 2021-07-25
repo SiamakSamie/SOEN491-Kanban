@@ -153,7 +153,7 @@ export default {
             this.saveRowAndColumns(rowData);
         });
         this.eventHub.$on("delete-row", (rowData) => {
-            this.saveRowAndColumns(rowData);
+            this.deleteRow(rowData);
         });
 
     },
@@ -281,7 +281,7 @@ export default {
         },
 
         deleteRow(rowData) {
-            this.asyncDeleteRow(rowData.id).then(() => {
+            this.asyncDeleteRow(rowData.rowId).then(() => {
                 this.triggerSuccessToast('Row Deleted')
                 this.getKanban(this.kanban.id);
 
