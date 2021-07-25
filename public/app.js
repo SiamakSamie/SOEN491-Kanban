@@ -8766,7 +8766,7 @@ __webpack_require__.r(__webpack_exports__);
         case 'Medium':
           return 'yellow';
 
-        case 'HHigh':
+        case 'High':
           return 'red';
 
         case 'None':
