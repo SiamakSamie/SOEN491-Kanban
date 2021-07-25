@@ -153,7 +153,7 @@ export default {
             this.saveRowAndColumns(rowData);
         });
         this.eventHub.$on("delete-row", (rowData) => {
-            this.saveRowAndColumns(rowData);
+            this.deleteRow(rowData);
         });
 
     },
@@ -199,9 +199,7 @@ export default {
         saveTask(taskData) {
 
             this.isDraggableDisabled = true;
-
             this.asyncCreateTask(taskData).then((data) => {
-
                 this.asyncGetTaskCardsByColumn(taskData.selectedColumnId).then((data) => {
                     console.log(taskData)
                     this.kanban.rows[taskData.selectedRowIndex].columns[taskData.selectedColumnIndex].tasks = data.data;
@@ -281,7 +279,7 @@ export default {
         },
 
         deleteRow(rowData) {
-            this.asyncDeleteRow(rowData.id).then(() => {
+            this.asyncDeleteRow(rowData.rowId).then(() => {
                 this.triggerSuccessToast('Row Deleted')
                 this.getKanban(this.kanban.id);
 

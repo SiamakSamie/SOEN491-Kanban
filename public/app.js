@@ -7722,7 +7722,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       _this.saveRowAndColumns(rowData);
     });
     this.eventHub.$on("delete-row", function (rowData) {
-      _this.saveRowAndColumns(rowData);
+      _this.deleteRow(rowData);
     });
   },
   beforeDestroy: function beforeDestroy() {
@@ -7863,7 +7863,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     deleteRow: function deleteRow(rowData) {
       var _this7 = this;
 
-      this.asyncDeleteRow(rowData.id).then(function () {
+      this.asyncDeleteRow(rowData.rowId).then(function () {
         _this7.triggerSuccessToast('Row Deleted');
 
         _this7.getKanban(_this7.kanban.id);
@@ -31474,7 +31474,7 @@ var render = function() {
                                   _c(
                                     "h1",
                                     { staticClass: "text-2xl text-white pb-2" },
-                                    [_vm._v("Edit Xkanban Employee")]
+                                    [_vm._v("Edit Kanban Employee")]
                                   ),
                                   _vm._v(" "),
                                   _c(
@@ -31485,7 +31485,7 @@ var render = function() {
                                     },
                                     [
                                       _vm._v(
-                                        "\n                                Editing existing Xkanban employee "
+                                        "\n                                Editing existing Kanban employee "
                                       )
                                     ]
                                   )
@@ -31494,7 +31494,7 @@ var render = function() {
                                   _c(
                                     "h1",
                                     { staticClass: "text-2xl text-white pb-2" },
-                                    [_vm._v("Create Xkanban Employee")]
+                                    [_vm._v("Create Kanban Employee")]
                                   ),
                                   _vm._v(" "),
                                   _c(
@@ -31505,7 +31505,7 @@ var render = function() {
                                     },
                                     [
                                       _vm._v(
-                                        "\n                                Creating a new employee for Xkanban"
+                                        "\n                                Creating a new employee for Kanban"
                                       )
                                     ]
                                   )

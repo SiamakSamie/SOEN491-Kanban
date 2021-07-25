@@ -39,7 +39,6 @@ class TaskController extends Controller
             ], 400);
         }
 
-
         $taskCard = $request->all();
 
         $badge = Badge::firstOrCreate([
@@ -59,7 +58,6 @@ class TaskController extends Controller
                 'badge_id' => $badge->id,
                 'column_id' => $taskCard['selectedColumnId'],
                 'row_id' => $taskCard['selectedRowId'],
-
                 'board_id' => $taskCard['boardId'],
                 'priority' => $request->input('priority') !== null ? $taskCard['priority']['name'] : null,
 
@@ -68,7 +66,7 @@ class TaskController extends Controller
             if($request->input('assignedTo') !== null){
                 $employeeArray = [];
                 foreach ($taskCard['assignedTo'] as $employee) {
-                    array_push($employeeArray, $employee['id']);
+                    array_push($employeeArray, $employee['employee_id']);
                 }
                 $task->assignedTo()->sync($employeeArray);
             }

@@ -83,7 +83,7 @@ class TaskTest extends TestCase
             'selectedRowId' => 1,
             'boardId' => 1,
             'priority' => null,
-            'assignedTo' => [['id' => '1'], ['id' => '2']]
+            'assignedTo' => [['employee_id' => '1'], ['employee_id' => '2']]
         ]);
 
         $this->assertDatabaseHas('kanban_employee_task', ['employee_id' => 1]);
